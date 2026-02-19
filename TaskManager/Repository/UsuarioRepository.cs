@@ -96,5 +96,76 @@ public class UsuarioRepository : IUsuarioRepository
         return ListaUsuarios;
     }
 
-    
+    public Usuarios GetUsuarioById(int idBuscado)
+    {
+        Usuarios? usuarioDb = null;
+
+        string queryString = @"SELECT id_usuario, nombre_de_usuario
+                                      email, password, id_rol_usuario
+                               FROM Usuario
+                               WHERE id_usuario = @idBuscado;";
+        
+        using (SqliteConnection  connection = new  SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idBuscado", idBuscado));
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if(reader.Read())
+                {
+                    usuarioDb = new Usuarios
+                    {
+                      IdUsuario = Convert.ToInt32(reader["id_usuario"]),
+                      NombreDeUsuario = Convert.ToString(reader["nombre_de_usuario"])!,
+                      Email = Convert.ToString(reader["email"])!,
+                      Password = Convert.ToString(reader["password"])!,
+                      Rol = (RolUsuario)Convert.ToInt32(reader["id_rol_usuario"])  
+                    };
+                }
+            }
+
+            connection.Close();
+        }
+
+        return usuarioDb;
+    }
+
+    public void DeleteUsuario(int IdUsuario)
+    {
+        string queryString = @"DELETE FROM Usuario WHERE id_usuario = @idUsuario;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idUsuario", IdUsuario));
+
+            command.ExecuteNonQuery();
+
+            connection.Close();
+        }
+    }
+
+    public void ChangePassword(int idBuscado, string newPassword)
+    {
+        string queryString = @"UPDATE Usuario SET password = @newPassword WHERE id_usuario = @idBuscado;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@newPassword", newPassword));
+            command.Parameters.Add(new SqliteParameter("@idBuscado", idBuscado));
+
+            connection.Close();
+        }
+    }
 }
