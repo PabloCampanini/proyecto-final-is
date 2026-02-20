@@ -84,4 +84,46 @@ public class TableroRepository : ITableroRepository
             connection.Close();
         }
     }
+
+    public Tablero GetTableroByIdTablero(int idTableroBuscado)
+    {
+        Tablero tableroDb = null;
+
+        string queryString = @"SELECT id_tablero,
+                                      id_usuario_propietario,
+                                      nombre, 
+                                      descripcion
+                               FROM Tablero
+                               WHERE id_tablero = @idTableroBuscado;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTableroBuscado", idTableroBuscado));
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    tableroDb = new Tablero
+                    {
+                        IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                        IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                        Nombre = Convert.ToString(reader["nombre"]),
+                        Descripcion = Convert.ToString(reader["descripcion"])
+                    };
+                }
+            }
+
+            connection.Close();
+        }
+        if (tableroDb == null)
+        {
+            throw new Exception($"No se encontró un tablero con el id {idTableroBuscado}");
+        }
+        return tableroDb;
+    }
 }
