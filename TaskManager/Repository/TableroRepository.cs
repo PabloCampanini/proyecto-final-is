@@ -55,4 +55,33 @@ public class TableroRepository : ITableroRepository
 
         return nuevoTablero;
     }
+
+    public void UpdateTablero(int idBuscado, Tablero tableroNuevo)
+    {
+        string queryString = @"UPDATE Tablero SET id_usuario_propietario = @idUsuarioPropietario,
+                                                  nombre = @NombreTabla,
+                                                  descripcion = @DescripcionTabla
+                               WHERE id_tablero = @idBuscado;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idUsuarioPropietario", tableroNuevo.IdUsuarioPropietario));
+            command.Parameters.Add(new SqliteParameter("@NombreTabla", tableroNuevo.Nombre));
+            command.Parameters.Add(new SqliteParameter("@DescripcionTabla", string.IsNullOrEmpty(tableroNuevo.Descripcion) ? DBNull.Value : tableroNuevo.Descripcion));
+            command.Parameters.Add(new SqliteParameter("@idBuscado", idBuscado));
+
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception($"No se encontró un tablero con el id {idBuscado} para actualizar.");
+            }
+
+            connection.Close();
+        }
+    }
 }
