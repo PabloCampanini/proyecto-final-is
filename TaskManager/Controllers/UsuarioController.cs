@@ -52,4 +52,28 @@ public class UsuariosController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
+    public IActionResult Password(int idUsuario)
+    {
+        ModificarContraseñaVM contraseñaVM =
+            new ModificarContraseñaVM();
+
+        contraseñaVM.IdUsuarioB = idUsuario;
+        contraseñaVM.ActualPassword =
+            usuarioRep.GetUsuarioById(idUsuario).Password;
+
+        return View(contraseñaVM);
+    }
+
+    [HttpPost]
+    public IActionResult Password(ModificarContraseñaVM contraseñaVM)
+    {
+        usuarioRep.ChangePassword(
+            contraseñaVM.IdUsuarioB,
+            contraseñaVM.newPassword
+        );
+
+        return RedirectToAction("Index");
+    }
+
 }
