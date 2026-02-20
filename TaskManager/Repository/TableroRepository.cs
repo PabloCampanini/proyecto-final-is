@@ -269,4 +269,27 @@ public class TableroRepository : ITableroRepository
             throw new Exception($"Error al obtener los tableros del usuario {idUsuarioAs}", ex);
         }
     }
+
+    public void DeleteTablero(int idTableroB)
+    {
+        string queryString = @"DELETE FROM Tablero WHERE id_tablero = @idTableroB;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTableroB", idTableroB));
+
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception($"Error al borrar el tablero {idTableroB}");
+            }
+
+            connection.Close();
+        }
+    }
 }

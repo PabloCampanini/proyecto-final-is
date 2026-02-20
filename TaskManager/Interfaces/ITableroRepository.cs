@@ -6,5 +6,5 @@ public interface ITableroRepository
     List<Tablero> GetAllTableros();
     List<Tablero> GetAllTablerosByIdCreador(int idCreador);
     List<Tablero> GetAllTablerosByIdUsAsignado(int idUsuarioAs);
-    //void DeleteTablero(int idTableroB);
+    void DeleteTablero(int idTableroB);
 }
