@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+@model CrearUsuarioVM
+
+<section class="container mt-4">
+    <h2 class="text-center mb-4">Crear Nuevo Usuario</h2>
+
+    <form asp-controller="Usuarios" asp-action="CrearUsuario" method="post">
+
+        <div class="mb-3">
+            <label asp-for="UsuarioNuevo.NombreDeUsuario" class="form-label"></label>
+            <input asp-for="UsuarioNuevo.NombreDeUsuario" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="UsuarioNuevo.Email" class="form-label"></label>
+            <input asp-for="UsuarioNuevo.Email" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="UsuarioNuevo.Password" class="form-label"></label>
+            <input asp-for="UsuarioNuevo.Password" type="password" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="UsuarioNuevo.Rol" class="form-label"></label>
+            <select asp-for="UsuarioNuevo.Rol" class="form-select">
+                <option value="1">Administrador</option>
+                <option value="2">Operador</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Guardar</button>
+        <a asp-controller="Usuarios" asp-action="Index" class="btn btn-secondary w-100 mt-2">Volver</a>
+
+    </form>
+</section>

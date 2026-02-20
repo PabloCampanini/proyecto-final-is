@@ -18,4 +18,17 @@ public class UsuariosController : Controller
         return View(usuariosVM);
     }
 
+    [HttpGet]
+    public IActionResult CrearUsuario()
+    {
+        return View(new CrearUsuarioVM());
+    }
+
+    [HttpPost]
+    public IActionResult CrearUsuario(CrearUsuarioVM usuarioCargado)
+    {
+        usuarioRep.CreateUsuario(usuarioCargado.UsuarioNuevo);
+        return RedirectToAction("Index");
+    }
+
 }
