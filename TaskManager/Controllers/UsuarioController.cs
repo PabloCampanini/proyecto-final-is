@@ -76,4 +76,17 @@ public class UsuariosController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
+    public IActionResult BorrarUsuario(int idUsuarioB)
+    {
+        return View(usuarioRep.GetUsuarioById(idUsuarioB));
+    }
+
+    [HttpPost]
+    public IActionResult BorrarUsuario(Usuarios usuarioB)
+    {
+        usuarioRep.DeleteUsuario(usuarioB.IdUsuario);
+        return RedirectToAction("Index");
+    }
+
 }
