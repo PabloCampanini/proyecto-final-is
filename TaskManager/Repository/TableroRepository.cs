@@ -126,4 +126,147 @@ public class TableroRepository : ITableroRepository
         }
         return tableroDb;
     }
+
+    public List<Tablero> GetAllTableros()
+    {
+        try
+        {
+            List<Tablero> ListaTableros = new List<Tablero>();
+    
+            string queryString = @"SELECT id_tablero,
+                                          id_usuario_propietario,
+                                          nombre, 
+                                          descripcion
+                                   FROM Tablero;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+            {
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Tablero tableroDb = new Tablero
+                        {
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Descripcion = Convert.ToString(reader["descripcion"])
+                        };
+    
+                        ListaTableros.Add(tableroDb);
+                    }
+                }
+    
+                connection.Close();
+            }
+    
+            return ListaTableros;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener los tableros.", ex);            
+        }
+    }
+
+    public List<Tablero> GetAllTablerosByIdCreador(int idCreador)
+    {
+        try
+        {
+            List<Tablero> ListaTableros = new List<Tablero>();
+    
+            string queryString = @"SELECT id_tablero,
+                                          id_usuario_propietario,
+                                          nombre, 
+                                          descripcion
+                                   FROM Tablero
+                                   WHERE id_usuario_propietario = @idCreador;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+            {
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                command.Parameters.Add(new SqliteParameter("@idCreador", idCreador));
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Tablero tableroDb = new Tablero
+                        {
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Descripcion = Convert.ToString(reader["descripcion"])
+                        };
+    
+                        ListaTableros.Add(tableroDb);
+                    }
+                }
+    
+                connection.Close();
+            }
+    
+            return ListaTableros;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al obtener los tableros del usuario {idCreador}.", ex);
+        }
+    }
+
+    public List<Tablero> GetAllTablerosByIdUsAsignado(int idUsuarioAs)
+    {
+        try
+        {
+            List<Tablero> ListaTableros = new List<Tablero>();
+    
+            string queryString = @"SELECT tb.id_tablero, 
+                                          tb.id_usuario_propietario, 
+                                          tb.nombre, 
+                                          tb.descripcion 
+                                   FROM Tablero tb
+                                   INNER JOIN Tarea tr USING(id_tablero)
+                                   WHERE tr.id_usuario_asignado = @idUsuarioAs
+                                   GROUP BY tb.id_tablero;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+            {
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                command.Parameters.Add(new SqliteParameter("@idUsuarioAs", idUsuarioAs));
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Tablero tableroDb = new Tablero
+                        {
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Descripcion = Convert.ToString(reader["descripcion"])
+                        };
+    
+                        ListaTableros.Add(tableroDb);
+                    }
+                }
+    
+                connection.Close();
+            }
+    
+            return ListaTableros;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al obtener los tableros del usuario {idUsuarioAs}", ex);
+        }
+    }
 }
