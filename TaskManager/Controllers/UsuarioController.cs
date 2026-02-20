@@ -31,4 +31,25 @@ public class UsuariosController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
+    public IActionResult ModificarUsuario(int idUsuarioB)
+    {
+        ModificarUsuarioVM usuarioM = new ModificarUsuarioVM();
+        usuarioM.UsuarioAModificar =
+            usuarioRep.GetUsuarioById(idUsuarioB);
+
+        return View(usuarioM);
+    }
+
+    [HttpPost]
+    public IActionResult ModificarUsuario(ModificarUsuarioVM usuarioM)
+    {
+        usuarioRep.UpdateUsuario(
+            usuarioM.UsuarioAModificar.IdUsuario,
+            usuarioM.UsuarioAModificar
+        );
+
+        return RedirectToAction("Index");
+    }
+
 }

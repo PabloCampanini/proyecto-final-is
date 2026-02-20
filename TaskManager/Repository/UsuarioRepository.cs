@@ -100,7 +100,7 @@ public class UsuarioRepository : IUsuarioRepository
     {
         Usuarios? usuarioDb = null;
 
-        string queryString = @"SELECT id_usuario, nombre_de_usuario
+        string queryString = @"SELECT id_usuario, nombre_de_usuario,
                                       email, password, id_rol_usuario
                                FROM Usuario
                                WHERE id_usuario = @idBuscado;";
