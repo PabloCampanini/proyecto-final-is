@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Modificar usuario";
+}
+
+@model ModificarUsuarioVM
+
+<section class="container mt-4">
+    <h2 class="text-center mb-4">
+        Modificar Usuario @Model.UsuarioAModificar.NombreDeUsuario
+    </h2>
+
+    <form asp-controller="Usuarios" asp-action="ModificarUsuario" method="post">
+
+        <input type="hidden" asp-for="UsuarioAModificar.IdUsuario" />
+        <input type="hidden" asp-for="UsuarioAModificar.NombreDeUsuario" />
+        <input type="hidden" asp-for="UsuarioAModificar.Password" />
+
+        <div class="mb-3">
+            <label asp-for="UsuarioAModificar.Email" class="form-label"></label>
+            <input asp-for="UsuarioAModificar.Email" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="UsuarioAModificar.Rol" class="form-label"></label>
+            <select asp-for="UsuarioAModificar.Rol" class="form-select">
+                <option value="1">Administrador</option>
+                <option value="2">Operador</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
+        <a asp-controller="Usuarios" asp-action="Index" class="btn btn-secondary w-100 mt-2">Cancelar</a>
+
+    </form>
+</section>
