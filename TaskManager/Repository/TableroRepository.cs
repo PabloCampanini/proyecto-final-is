@@ -1,0 +1,295 @@
+using Microsoft.Data.Sqlite;
+
+public class TableroRepository : ITableroRepository
+{
+    private readonly string _ConnectionString;
+
+    public TableroRepository(string ConnectionString)
+    {
+        _ConnectionString = ConnectionString;
+    }
+
+    public Tablero CreateTablero(int idCreador, string nombreTabla, string descripcionTabla)
+    {
+        Tablero nuevoTablero = new Tablero
+        {
+            IdUsuarioPropietario = idCreador,
+            Nombre = nombreTabla,
+            Descripcion = descripcionTabla
+        };
+
+        string queryStringInsert = @"INSERT INTO Tablero (id_usuario_propietario, nombre, descripcion)
+                                     VALUES(@idCreador, @nombreTabla, @descripcionTabla);";
+
+        string queryStringSelect = @"SELECT MAX(id_tablero) AS id_tablero FROM Tablero;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand commandInsert = new SqliteCommand(queryStringInsert, connection);
+
+            connection.Open();
+
+            commandInsert.Parameters.Add(new SqliteParameter("@idCreador", idCreador));
+            commandInsert.Parameters.Add(new SqliteParameter("@nombreTabla", nombreTabla));
+            commandInsert.Parameters.Add(new SqliteParameter("@descripcionTabla", string.IsNullOrEmpty(descripcionTabla) ? DBNull.Value : descripcionTabla));
+
+            int filas = commandInsert.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception("No se pudo crear el tablero. Verifique los datos proporcionados.");
+            }
+
+            SqliteCommand commandSelect = new SqliteCommand(queryStringSelect, connection);
+
+            using (SqliteDataReader reader = commandSelect.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    nuevoTablero.IdTablero = Convert.ToInt32(reader["id_tablero"]);
+                }
+            }
+
+            connection.Close();
+        }
+
+        return nuevoTablero;
+    }
+
+    public void UpdateTablero(int idBuscado, Tablero tableroNuevo)
+    {
+        string queryString = @"UPDATE Tablero SET id_usuario_propietario = @idUsuarioPropietario,
+                                                  nombre = @NombreTabla,
+                                                  descripcion = @DescripcionTabla
+                               WHERE id_tablero = @idBuscado;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idUsuarioPropietario", tableroNuevo.IdUsuarioPropietario));
+            command.Parameters.Add(new SqliteParameter("@NombreTabla", tableroNuevo.Nombre));
+            command.Parameters.Add(new SqliteParameter("@DescripcionTabla", string.IsNullOrEmpty(tableroNuevo.Descripcion) ? DBNull.Value : tableroNuevo.Descripcion));
+            command.Parameters.Add(new SqliteParameter("@idBuscado", idBuscado));
+
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception($"No se encontró un tablero con el id {idBuscado} para actualizar.");
+            }
+
+            connection.Close();
+        }
+    }
+
+    public Tablero GetTableroByIdTablero(int idTableroBuscado)
+    {
+        Tablero tableroDb = null;
+
+        string queryString = @"SELECT id_tablero,
+                                      id_usuario_propietario,
+                                      nombre, 
+                                      descripcion
+                               FROM Tablero
+                               WHERE id_tablero = @idTableroBuscado;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTableroBuscado", idTableroBuscado));
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    tableroDb = new Tablero
+                    {
+                        IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                        IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                        Nombre = Convert.ToString(reader["nombre"]),
+                        Descripcion = Convert.ToString(reader["descripcion"])
+                    };
+                }
+            }
+
+            connection.Close();
+        }
+        if (tableroDb == null)
+        {
+            throw new Exception($"No se encontró un tablero con el id {idTableroBuscado}");
+        }
+        return tableroDb;
+    }
+
+    public List<Tablero> GetAllTableros()
+    {
+        try
+        {
+            List<Tablero> ListaTableros = new List<Tablero>();
+    
+            string queryString = @"SELECT id_tablero,
+                                          id_usuario_propietario,
+                                          nombre, 
+                                          descripcion
+                                   FROM Tablero;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+            {
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Tablero tableroDb = new Tablero
+                        {
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Descripcion = Convert.ToString(reader["descripcion"])
+                        };
+    
+                        ListaTableros.Add(tableroDb);
+                    }
+                }
+    
+                connection.Close();
+            }
+    
+            return ListaTableros;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener los tableros.", ex);            
+        }
+    }
+
+    public List<Tablero> GetAllTablerosByIdCreador(int idCreador)
+    {
+        try
+        {
+            List<Tablero> ListaTableros = new List<Tablero>();
+    
+            string queryString = @"SELECT id_tablero,
+                                          id_usuario_propietario,
+                                          nombre, 
+                                          descripcion
+                                   FROM Tablero
+                                   WHERE id_usuario_propietario = @idCreador;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+            {
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                command.Parameters.Add(new SqliteParameter("@idCreador", idCreador));
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Tablero tableroDb = new Tablero
+                        {
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Descripcion = Convert.ToString(reader["descripcion"])
+                        };
+    
+                        ListaTableros.Add(tableroDb);
+                    }
+                }
+    
+                connection.Close();
+            }
+    
+            return ListaTableros;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al obtener los tableros del usuario {idCreador}.", ex);
+        }
+    }
+
+    public List<Tablero> GetAllTablerosByIdUsAsignado(int idUsuarioAs)
+    {
+        try
+        {
+            List<Tablero> ListaTableros = new List<Tablero>();
+    
+            string queryString = @"SELECT tb.id_tablero, 
+                                          tb.id_usuario_propietario, 
+                                          tb.nombre, 
+                                          tb.descripcion 
+                                   FROM Tablero tb
+                                   INNER JOIN Tarea tr USING(id_tablero)
+                                   WHERE tr.id_usuario_asignado = @idUsuarioAs
+                                   GROUP BY tb.id_tablero;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+            {
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                command.Parameters.Add(new SqliteParameter("@idUsuarioAs", idUsuarioAs));
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Tablero tableroDb = new Tablero
+                        {
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            IdUsuarioPropietario = Convert.ToInt32(reader["id_usuario_propietario"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Descripcion = Convert.ToString(reader["descripcion"])
+                        };
+    
+                        ListaTableros.Add(tableroDb);
+                    }
+                }
+    
+                connection.Close();
+            }
+    
+            return ListaTableros;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al obtener los tableros del usuario {idUsuarioAs}", ex);
+        }
+    }
+
+    public void DeleteTablero(int idTableroB)
+    {
+        string queryString = @"DELETE FROM Tablero WHERE id_tablero = @idTableroB;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTableroB", idTableroB));
+
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception($"Error al borrar el tablero {idTableroB}");
+            }
+
+            connection.Close();
+        }
+    }
+}
