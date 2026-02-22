@@ -39,14 +39,48 @@ public class TareaRepository : ITareaRepository
             command.Parameters.Add(new SqliteParameter("@idColor", (int)nuevaTarea.Color));
             command.Parameters.Add(new SqliteParameter("@idUsuario", nuevaTarea.IdUsuarioAsignado ?? (object)DBNull.Value));
 
-            int filas = command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        }
+    }
 
-            if (filas == 0)
+    public void UpdateTarea(int idTarea, Tareas tarea)
+    {
+        string queryString = @"UPDATE Tarea SET id_tablero = @idTablero,
+                                                nombre = @Nombre,
+                                                id_estado = @idEstado,
+                                                descripcion = @Descripcion,
+                                                id_color = @idColor,
+                                                id_usuario_asignado = @idUsuario
+                               WHERE id_tarea = @idTarea;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTablero", tarea.IdTablero));
+            command.Parameters.Add(new SqliteParameter("@Nombre", tarea.Nombre));
+            command.Parameters.Add(new SqliteParameter("@idEstado", (int)tarea.Estado));
+            command.Parameters.Add(new SqliteParameter("@Descripcion", string.IsNullOrEmpty(tarea.Descripcion) ? DBNull.Value : tarea.Descripcion));
+            command.Parameters.Add(new SqliteParameter("@idColor", (int)tarea.Color));
+
+            if (tarea.IdUsuarioAsignado > 0)
             {
-                throw new Exception("Error al crear una tarea. Verifique los datos enviados");
+                command.Parameters.Add(new SqliteParameter("@idUsuario", tarea.IdUsuarioAsignado));
             }
+            else
+            {
+                command.Parameters.Add(new SqliteParameter("@idUsuario", DBNull.Value));
+            }
+
+            command.Parameters.Add(new SqliteParameter("@idTarea", idTarea));
+
+            command.ExecuteNonQuery();
 
             connection.Close();
         }
     }
+
+
 }
