@@ -82,5 +82,49 @@ public class TareaRepository : ITareaRepository
         }
     }
 
+    public Tareas GetTareaByIdTarea(int idTareaBuscada)
+    {
+        Tareas tareaDb = null;
+
+        string queryString = @"SELECT id_tarea,
+                                      id_tablero,
+                                      nombre,
+                                      id_estado,
+                                      descripcion,
+                                      id_color,
+                                      id_usuario_asignado
+                               FROM Tarea
+                               WHERE id_tarea = @idTareaBuscada;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTareaBuscada", idTareaBuscada));
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    tareaDb = new Tareas
+                    {
+                        IdTarea = Convert.ToInt32(reader["id_tarea"]),
+                        IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                        Nombre = Convert.ToString(reader["nombre"]),
+                        Estado = (EstadoTarea)Convert.ToInt32(reader["id_estado"]),
+                        Descripcion = Convert.ToString(reader["descripcion"]),
+                        Color = (Color)Convert.ToInt32(reader["id_color"]),
+                        IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_asignado"] == DBNull.Value ? null : reader["id_usuario_asignado"])
+                    };
+                }
+            }
+
+            connection.Close();
+        }
+
+        return tareaDb;
+    }
 
 }
