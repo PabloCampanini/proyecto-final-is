@@ -225,4 +225,51 @@ public class TareaRepository : ITareaRepository
         return ListaTareas;
     }
 
+    public void DeleteTarea(int idTareaB)
+    {
+        string queryString = @"DELETE FROM Tarea WHERE id_tarea = @idTareaB;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTareaB", idTareaB));
+
+            command.ExecuteNonQuery();
+
+            connection.Close();
+        }
+    }
+
+    public void AsignarTarea(int idUsuario, int idTarea)
+    {
+        string queryString = @"UPDATE Tarea SET id_usuario_asignado = @idUsuario
+                               WHERE id_tarea = @idTarea;";
+
+        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        {
+            SqliteCommand command = new SqliteCommand(queryString, connection);
+
+            connection.Open();
+
+            command.Parameters.Add(new SqliteParameter("@idTarea", idTarea));
+
+            if (idUsuario > 0)
+            {
+                command.Parameters.Add(new SqliteParameter("@idUsuario", idUsuario));
+            }
+            else
+            {
+                command.Parameters.Add(new SqliteParameter("@idUsuario", DBNull.Value));
+            }
+
+
+            command.ExecuteNonQuery();
+
+            connection.Close();
+        }
+    }
+
 }

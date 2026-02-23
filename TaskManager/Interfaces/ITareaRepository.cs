@@ -6,6 +6,6 @@ public interface ITareaRepository
     Tareas GetTareaByIdTarea(int idTareaBuscada);
     List<Tareas> GetAllTareasByIdUsuario(int idUsuario);
     List<Tareas> GetAllTareasByIdTablero(int idTablero);
-    //void DeleteTarea(int idTareaB);
-    //void AsignarTarea(int idUsuario, int idTarea);
+    void DeleteTarea(int idTareaB);
+    void AsignarTarea(int idUsuario, int idTarea);
 }
