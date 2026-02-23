@@ -1,0 +1,41 @@
+@{
+    ViewData["title"] = "Borrar tablero";
+}
+
+@model Tablero
+
+<section class="container text-center mt-5">
+    <h2 class="text-danger">⚠ Atención ⚠</h2>
+    <p class="lead">Está a punto de eliminar el tablero <strong>@Model.Nombre</strong>.</p>
+    <p class="fw-bold">Esta acción es irreversible. ¿Desea continuar?</p>
+
+    <!-- Botón para abrir el modal -->
+    <button type="button" class="btn btn-danger btn-lg px-4" data-bs-toggle="modal" data-bs-target="#confirmarEliminacion">
+        <i class="bi bi-trash"></i> Eliminar Tablero
+    </button>
+
+    <a asp-controller="Tablero" asp-action="Index" class="btn btn-secondary btn-lg px-4"><i class="bi bi-arrow-left-circle"></i> Cancelar</a>
+</section>
+
+<!-- Modal de Confirmación -->
+<section class="modal fade" id="confirmarEliminacion" tabindex="-1" aria-labelledby="confirmarEliminacionLabel" aria-hidden="true">
+    <section class="modal-dialog modal-dialog-centered">
+        <section class="modal-content">
+            <header class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmarEliminacionLabel">Confirmación de Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </header>
+            <main class="modal-body text-center">
+                <p>¿Está seguro de que desea eliminar el tablero <strong>@Model.Nombre</strong>?</p>
+                <p class="text-muted">Esta acción no se puede deshacer.</p>
+            </main>
+            <footer class="modal-footer">
+                <form asp-controller="Tablero" asp-action="BorrarTablero" method="post">
+                    <input type="hidden" asp-for="IdTablero">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Sí, eliminar</button>
+                </form>
+                <a asp-controller="Tablero" asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Cancelar</a>
+            </footer>
+        </section>
+    </section>
+</section>

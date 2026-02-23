@@ -1,0 +1,32 @@
+@{
+    ViewData["title"] = "Error";
+}
+
+@model Tablero
+
+<section class="container mt-5">
+    <article class="alert alert-danger text-center">
+        <h2 class="fw-bold">No se puede borrar este tablero</h2>
+        <p>Este tablero tiene tareas pendientes, por lo que no puede ser eliminado.</p>
+    </article>
+
+    <section class="d-flex justify-content-center gap-3 mt-4">
+        <!-- Botón para cancelar -->
+        <a asp-controller="Usuarios" asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Cancelar
+        </a>
+
+        <!-- Modificar cuando se tenga el logueo -->
+        <!-- Botón para cambiar propietario -->
+        <a asp-controller="Tablero" asp-action="CambiarPropietario" asp-route-idTableroB="@Model.IdTablero"
+            class="btn btn-warning">
+            <i class="bi bi-person"></i> Cambiar Propietario
+        </a>
+
+        <!-- Modificar cuando se tenga el logueo -->
+        <!-- Botón para ver el tablero -->
+        <a asp-controller="Tareas" asp-action="Index" asp-route-idTablero="@Model.IdTablero" class="btn btn-primary">
+            <i class="bi bi-kanban"></i> Ver Tablero
+        </a>
+    </section>
+</section>
