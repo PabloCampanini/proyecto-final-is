@@ -1,0 +1,47 @@
+@{
+    ViewData["title"] = "Cambiar Propietario";
+}
+
+@model CambiarPropietarioVM
+
+<section class="container mt-5">
+    <h2 class="text-center mb-4">Cambiar Propietario del Tablero</h2>
+
+    <section class="card shadow-lg p-4">
+        <form asp-controller="Tablero" asp-action="CambiarPropietario" method="post">
+            <input type="hidden" asp-for="@Model.TableroCambiar.IdTablero" />
+            <input type="hidden" asp-for="@Model.TableroCambiar.Nombre" />
+            <input type="hidden" asp-for="@Model.TableroCambiar.Descripcion" />
+
+            <section class="mb-3">
+                <label class="form-label fw-bold">Seleccione el nuevo propietario:</label>
+                <select class="form-select" asp-for="@Model.TableroCambiar.IdUsuarioPropietario" required>
+                    <option value="" disabled selected>Seleccione un usuario...</option>
+                    @foreach (var usuario in Model.UsuariosVM.Administradores)
+                    {
+                        if (Model.TableroCambiar.IdUsuarioPropietario != usuario.IdUsuario)
+                        {
+                            <option value="@usuario.IdUsuario">@usuario.NombreDeUsuario - @usuario.Rol</option>
+                        }
+                    }
+                    @foreach (var usuario in Model.UsuariosVM.Operadores)
+                    {
+                        if (Model.TableroCambiar.IdUsuarioPropietario != usuario.IdUsuario)
+                        {
+                            <option value="@usuario.IdUsuario">@usuario.NombreDeUsuario - @usuario.Rol</option>
+                        }
+                    }
+                </select>
+            </section>
+
+            <section class="d-flex justify-content-between">
+                <a asp-controller="Tablero" asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-floppy"></i> Guardar Cambios
+                </button>
+            </section>
+        </form>
+    </section>
+</section>
