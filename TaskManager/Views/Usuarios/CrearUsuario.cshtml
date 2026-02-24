@@ -4,36 +4,52 @@
 
 @model CrearUsuarioVM
 
-<section class="container mt-4">
-    <h2 class="text-center mb-4">Crear Nuevo Usuario</h2>
+<section class="container mt-4 py-3">
+    <article class="row justify-content-center">
+        <section class="col-md-6">
+            <header class="bg-primary text-white text-center py-3 rounded-top">
+                <h2>Crear Nuevo Usuario</h2>
+            </header>
 
-    <form asp-controller="Usuarios" asp-action="CrearUsuario" method="post">
+            <form asp-controller="Usuarios" asp-action="CrearUsuario" method="post" onsubmit="return validarPassword()" class="p-4 border rounded-bottom shadow-lg bg-white">
 
-        <div class="mb-3">
-            <label asp-for="UsuarioNuevo.NombreDeUsuario" class="form-label"></label>
-            <input asp-for="UsuarioNuevo.NombreDeUsuario" class="form-control">
-        </div>
+                <fieldset class="mb-3">
+                    <label asp-for="@Model.UsuarioNuevo.NombreDeUsuario" class="form-label">Nombre de Usuario</label>
+                    <input asp-for="@Model.UsuarioNuevo.NombreDeUsuario" class="form-control" placeholder="Ingrese su usuario" required>
+                </fieldset>
 
-        <div class="mb-3">
-            <label asp-for="UsuarioNuevo.Email" class="form-label"></label>
-            <input asp-for="UsuarioNuevo.Email" class="form-control">
-        </div>
+                <fieldset class="mb-3">
+                    <label asp-for="@Model.UsuarioNuevo.Email" class="form-label">Correo Electrónico</label>
+                    <input asp-for="@Model.UsuarioNuevo.Email" type="email" class="form-control" placeholder="ejemplo@correo.com" required>
+                </fieldset>
 
-        <div class="mb-3">
-            <label asp-for="UsuarioNuevo.Password" class="form-label"></label>
-            <input asp-for="UsuarioNuevo.Password" type="password" class="form-control">
-        </div>
+                <fieldset class="mb-3">
+                    <label asp-for="@Model.UsuarioNuevo.Password" class="form-label">Contraseña</label>
+                    <input asp-for="@Model.UsuarioNuevo.Password" id="password" type="password" class="form-control" placeholder="Ingrese su contraseña" required>
+                </fieldset>
 
-        <div class="mb-3">
-            <label asp-for="UsuarioNuevo.Rol" class="form-label"></label>
-            <select asp-for="UsuarioNuevo.Rol" class="form-select">
-                <option value="1">Administrador</option>
-                <option value="2">Operador</option>
-            </select>
-        </div>
+                <fieldset class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                    <input id="confirmPassword" type="password" class="form-control" placeholder="Repita su contraseña" required>
+                    <small id="passwordError" class="text-danger d-none">Las contraseñas no coinciden</small>
+                </fieldset>
 
-        <button type="submit" class="btn btn-primary w-100">Guardar</button>
-        <a asp-controller="Usuarios" asp-action="Index" class="btn btn-secondary w-100 mt-2">Volver</a>
+                <fieldset class="mb-3">
+                    <label asp-for="@Model.UsuarioNuevo.Rol" class="form-label">Rol</label>
+                    <select asp-for="@Model.UsuarioNuevo.Rol" class="form-select">
+                        <option value="2">Operador</option>
+                        <option value="1">Administrador</option>
+                    </select>
+                </fieldset>
 
-    </form>
+                <footer class="text-center">
+                    <button type="submit" class="btn btn-primary w-100 my-1">Cargar Usuario</button>
+                    <a asp-controller="Usuarios" asp-action="Index" class="btn btn-secondary w-100 my-1">Cancelar</a>
+                </footer>
+
+            </form>
+        </section>
+    </article>
 </section>
+
+<script src="~/js/CrearUsuario.js"></script>
