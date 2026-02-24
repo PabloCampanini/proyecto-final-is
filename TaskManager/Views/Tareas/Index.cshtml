@@ -1,0 +1,450 @@
+@{
+    ViewData["title"] = "Lista tareas";
+}
+
+@model ListarTareaVM
+
+<section class="container mt-5">
+    <h2 class="text-center mb-4">@Model.NombreTablero</h2>
+    <h3 class="text-center mb-4">@Model.DescripcionTablero</h3>
+    
+        <nav class="d-flex justify-content-between align-items-center my-3">
+            <!-- Botones a la izquierda -->
+            <section>
+                <a asp-controller="Tablero" asp-action="ModificarTablero" asp-route-idTableroB="@Model.IdTablero"
+                    class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Modificar Tabla</a>
+               
+                <a asp-controller="Tablero" asp-action="CambiarPropietario" asp-route-idTableroB="@Model.IdTablero"
+                    class="btn btn-primary btn-sm">
+                    <i class="bi bi-person"></i> Cambiar Propietario
+                </a>
+
+                <a asp-controller="Tablero" asp-action="BorrarTablero" asp-route-idTableroB="@Model.IdTablero"
+                    class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar Tabla
+                </a>
+            </section>
+
+            <!-- Botones a la derecha -->
+            <section>
+                <a asp-controller="Tareas" asp-action="CrearTarea" asp-route-idTableroB="@Model.IdTablero"
+                    class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Agregar Tarea</a>
+            </section>
+        </nav>
+
+
+
+    <section class="table-responsive">
+        <table class="table table-bordered text-center align-middle w-90">
+            <thead class="table-dark align-middle">
+                <tr>
+                    <th class="w-20">Ideas</th>
+                    <th class="w-20">Por Hacer</th>
+                    <th class="w-20">En Proceso</th>
+                    <th class="w-20">En Revisión</th>
+                    <th class="w-20">Completadas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <!-- IDEAS -->
+                    <td class="w-20">
+                        @foreach (var tarea in Model.TareasIdeas)
+                        {
+                            <div class="d-flex flex-column p-2 mb-2 border rounded shadow-sm"
+                                style="background-color: #f8f9fa; width: 100%;">
+                                <div class="d-flex align-items-center">
+                                    <span class="flex-shrink-0 me-2 d-inline-block rounded-circle"
+                                        style="width: 12px; height: 12px; background-color: #6c757d;"></span>
+                                    <p class="fw-bold">#@tarea.IdTarea @tarea.Nombre</p>
+                                </div>
+                                <div>
+                                    <hr>
+                                    <small class="fw-bold">@tarea.Descripcion</small>
+                                </div>
+                                <div class="d-flex justify-content-evenly mt-2">
+                                    <a asp-controller="Tareas" asp-action="BorrarTarea" asp-route-idTareaB="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-danger btn-sm opacity-75">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a asp-controller="Tareas" asp-action="ModificarTarea"
+                                        asp-route-idTareaB="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-warning btn-sm opacity-75">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-controller="Tareas" asp-action="MoverTareaDerecha"
+                                        asp-route-idTarea="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-success btn-sm opacity-75">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </td>
+
+                    <!-- PRIORIDAD (ALTA Y MEDIA) -->
+                    <td class="w-20">
+                        @foreach (var tarea in Model.TareasPorHacer)
+                        {
+                            @if (tarea.Color == Color.Red)
+                            {
+                                <div class="d-flex flex-column p-2 mb-2 border rounded shadow-sm"
+                                    style="background-color: #f8d7da; width: 100%;">
+                                    <div class="d-flex align-items-center">
+                                        <span class="flex-shrink-0 me-2 d-inline-block rounded-circle"
+                                            style="width: 12px; height: 12px; background-color: #dc3545;"></span>
+                                        <p class="fw-bold">#@tarea.IdTarea @tarea.Nombre</p>
+                                    </div>
+                                    <div>
+                                        <hr>
+                                        <small class="fw-bold">@tarea.Descripcion</small>
+                                    </div>
+                                    <div class="d-flex justify-content-evenly mt-2">
+                                        <a asp-controller="Tareas" asp-action="MoverTareaIzquierda"
+                                            asp-route-idTarea="@tarea.IdTarea"
+                                            class="rounded-circle btn btn-success btn-sm opacity-75">
+                                            <i class="bi bi-arrow-left"></i>
+                                        </a>
+
+                                        <a asp-controller="Tareas" asp-action="ModificarTarea"
+                                            asp-route-idTareaB="@tarea.IdTarea"
+                                            class="rounded-circle btn btn-warning btn-sm opacity-75">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        @if(tarea.IdUsuarioAsignado == 0)
+                                        {
+                                            <a asp-controller="Tareas" asp-action="AsignarTarea"
+                                                asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                                class="rounded-circle btn btn-primary btn-sm opacity-75">
+                                                <i class="bi bi-person-plus"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var usuario in Model.Usuarios)
+                                            {
+                                                @if (tarea.IdUsuarioAsignado == usuario.IdUsuario)
+                                                {
+                                                    var modalId = $"infoModal-{tarea.IdTarea}-{usuario.IdUsuario}"; // ID único por tarea y usuario
+
+                                                    <!-- Botón para abrir el modal -->
+                                                    <button type="button" class="btn btn-success btn-sm rounded-circle opacity-75" data-bs-toggle="modal" data-bs-target="#@modalId">                                                      
+                                                        <i class="bi bi-person"></i>
+                                                    </button>
+
+                                                    <!-- Modal con ID único -->
+                                                    <section class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalId-Label" aria-hidden="true">
+                                                        <article class="modal-dialog modal-dialog-centered">
+                                                            <section class="modal-content shadow-lg rounded-3">
+                                                                <header class="modal-header bg-success text-white">
+                                                                    <h2 class="modal-title fw-bold fs-5" id="@modalId-Label">Información de la Tarea</h2>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                </header>
+                                                                <section class="modal-body text-center">
+                                                                    <p class="fs-5 text-muted">Tarea asignada a: @usuario.NombreDeUsuario -- @usuario.Rol.</p>
+                                                                </section>
+                                                                <footer class="modal-footer">
+                                                                    <a asp-controller="Tareas" asp-action="BorrarAsignarTarea" asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                                                        class="btn btn-danger">
+                                                                        <i class="bi bi-trash"></i> Eliminar Asignación
+                                                                    </a>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                                </footer>
+                                                            </section>
+                                                        </article>
+                                                    </section>
+                                                }
+                                            }
+                                        }
+
+                                        <a asp-controller="Tareas" asp-action="MoverTareaDerecha"
+                                            asp-route-idTarea="@tarea.IdTarea"
+                                            class="rounded-circle btn btn-success btn-sm opacity-75">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-column p-2 mb-2 border rounded shadow-sm"
+                                    style="background-color: #fff3cd; width: 100%;">
+                                    <div class="d-flex align-items-center">
+                                        <span class="flex-shrink-0 me-2 d-inline-block rounded-circle"
+                                            style="width: 12px; height: 12px; background-color: #ffc107;"></span>
+                                        <p class="fw-bold">#@tarea.IdTarea @tarea.Nombre</p>
+                                    </div>
+                                    <div>
+                                        <hr>
+                                        <small class="fw-bold">@tarea.Descripcion</small>
+                                    </div>
+                                    <div class="d-flex justify-content-evenly mt-2">
+                                        <a asp-controller="Tareas" asp-action="MoverTareaIzquierda"
+                                            asp-route-idTarea="@tarea.IdTarea"
+                                            class="rounded-circle btn btn-success btn-sm opacity-75">
+                                            <i class="bi bi-arrow-left"></i>
+                                        </a>
+
+                                        <a asp-controller="Tareas" asp-action="ModificarTarea"
+                                            asp-route-idTareaB="@tarea.IdTarea"
+                                            class="rounded-circle btn btn-warning btn-sm opacity-75">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+
+                                        @if(tarea.IdUsuarioAsignado == 0)
+                                        {
+                                            <a asp-controller="Tareas" asp-action="AsignarTarea"
+                                                asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                                class="rounded-circle btn btn-primary btn-sm opacity-75">
+                                                <i class="bi bi-person-plus"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var usuario in Model.Usuarios)
+                                            {
+                                                @if (tarea.IdUsuarioAsignado == usuario.IdUsuario)
+                                                {
+                                                    var modalId = $"infoModal-{tarea.IdTarea}-{usuario.IdUsuario}"; // ID único por tarea y usuario
+
+                                                    <!-- Botón para abrir el modal -->
+                                                    <button type="button" class="btn btn-success btn-sm rounded-circle opacity-75" data-bs-toggle="modal" data-bs-target="#@modalId">                                                      
+                                                        <i class="bi bi-person"></i>
+                                                    </button>
+
+                                                    <!-- Modal con ID único -->
+                                                    <section class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalId-Label" aria-hidden="true">
+                                                        <article class="modal-dialog modal-dialog-centered">
+                                                            <section class="modal-content shadow-lg rounded-3">
+                                                                <header class="modal-header bg-success text-white">
+                                                                    <h2 class="modal-title fw-bold fs-5" id="@modalId-Label">Información de la Tarea</h2>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                </header>
+                                                                <section class="modal-body text-center">
+                                                                    <p class="fs-5 text-muted">Tarea asignada a: @usuario.NombreDeUsuario -- @usuario.Rol.</p>
+                                                                </section>
+                                                                <footer class="modal-footer">
+                                                                    <a asp-controller="Tareas" asp-action="BorrarAsignarTarea" asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                                                        class="btn btn-danger">
+                                                                        <i class="bi bi-trash"></i> Eliminar Asignación
+                                                                    </a>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                                </footer>
+                                                            </section>
+                                                        </article>
+                                                    </section>
+                                                }
+                                            }
+                                        }
+
+                                        <a asp-controller="Tareas" asp-action="MoverTareaDerecha"
+                                            asp-route-idTarea="@tarea.IdTarea"
+                                            class="rounded-circle btn btn-success btn-sm opacity-75">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </td>
+
+                    <!-- EN PROCESO -->
+                    <td class="w-20">
+                        @foreach (var tarea in Model.TareasEnProceso)
+                        {
+                            <div class="d-flex flex-column p-2 mb-2 border rounded shadow-sm"
+                                style="background-color: #cfe2ff; width: 100%;">
+                                <div class="d-flex align-items-center">
+                                    <span class="flex-shrink-0 me-2 d-inline-block rounded-circle"
+                                        style="width: 12px; height: 12px; background-color: #0d6efd;"></span>
+                                    <p class="fw-bold">#@tarea.IdTarea @tarea.Nombre</p>
+                                </div>
+                                <div>
+                                    <hr>
+                                    <small class="fw-bold">@tarea.Descripcion</small>
+                                </div>
+                                <div class="d-flex justify-content-evenly mt-2">
+                                    <a asp-controller="Tareas" asp-action="MoverTareaIzquierda"
+                                        asp-route-idTarea="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-success btn-sm opacity-75">
+                                        <i class="bi bi-arrow-left"></i>
+                                    </a>
+
+                                    <a asp-controller="Tareas" asp-action="ModificarTarea"
+                                        asp-route-idTareaB="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-warning btn-sm opacity-75">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    @if(tarea.IdUsuarioAsignado == 0)
+                                    {
+                                        
+                                        <a asp-controller="Tareas" asp-action="AsignarTarea"
+                                            asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                            class="rounded-circle btn btn-primary btn-sm opacity-75">
+                                            <i class="bi bi-person-plus"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var usuario in Model.Usuarios)
+                                        {
+                                            @if (tarea.IdUsuarioAsignado == usuario.IdUsuario)
+                                            {
+                                                var modalId = $"infoModal-{tarea.IdTarea}-{usuario.IdUsuario}"; // ID único por tarea y usuario
+
+                                                <!-- Botón para abrir el modal -->
+                                                <button type="button" class="btn btn-success btn-sm rounded-circle opacity-75" data-bs-toggle="modal" data-bs-target="#@modalId">                                                      
+                                                    <i class="bi bi-person"></i>
+                                                </button>
+
+                                                <!-- Modal con ID único -->
+                                                <section class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalId-Label" aria-hidden="true">
+                                                    <article class="modal-dialog modal-dialog-centered">
+                                                        <section class="modal-content shadow-lg rounded-3">
+                                                            <header class="modal-header bg-success text-white">
+                                                                <h2 class="modal-title fw-bold fs-5" id="@modalId-Label">Información de la Tarea</h2>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                            </header>
+                                                            <section class="modal-body text-center">
+                                                                <p class="fs-5 text-muted">Tarea asignada a: @usuario.NombreDeUsuario -- @usuario.Rol.</p>
+                                                            </section>
+                                                            <footer class="modal-footer">
+                                                                <a asp-controller="Tareas" asp-action="BorrarAsignarTarea" asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                                                    class="btn btn-danger">
+                                                                    <i class="bi bi-trash"></i> Eliminar Asignación
+                                                                </a>
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                            </footer>
+                                                        </section>
+                                                    </article>
+                                                </section>
+                                            }
+                                        }
+                                    }
+
+                                    <a asp-controller="Tareas" asp-action="MoverTareaDerecha"
+                                        asp-route-idTarea="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-success btn-sm opacity-75">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </td>
+
+                    <!-- EN REVISIÓN -->
+                    <td class="w-20">
+                        @foreach (var tarea in Model.TareasEnRevision)
+                        {
+                            <div class="d-flex flex-column p-2 mb-2 border rounded shadow-sm"
+                                style="background-color: #e985f7; width: 100%;">
+                                <div class="d-flex align-items-center">
+                                    <span class="flex-shrink-0 me-2 d-inline-block rounded-circle"
+                                        style="width: 12px; height: 12px; background-color: #8a1999;"></span>
+                                    <p class="fw-bold">#@tarea.IdTarea @tarea.Nombre</p>
+                                </div>
+                                <div>
+                                    <hr>
+                                    <small class="fw-bold">@tarea.Descripcion</small>
+                                </div>
+                                <div class="d-flex justify-content-evenly mt-2">
+                                    <a asp-controller="Tareas" asp-action="MoverTareaIzquierda"
+                                        asp-route-idTarea="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-success btn-sm opacity-75">
+                                        <i class="bi bi-arrow-left"></i>
+                                    </a>
+
+                                    <a asp-controller="Tareas" asp-action="ModificarTarea"
+                                        asp-route-idTareaB="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-warning btn-sm opacity-75">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    @if(tarea.IdUsuarioAsignado == 0)
+                                    {
+                                        <a asp-controller="Tareas" asp-action="AsignarTarea"
+                                            asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                            class="rounded-circle btn btn-primary btn-sm opacity-75">
+                                            <i class="bi bi-person-plus"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var usuario in Model.Usuarios)
+                                        {
+                                            @if (tarea.IdUsuarioAsignado == usuario.IdUsuario)
+                                            {
+                                                var modalId = $"infoModal-{tarea.IdTarea}-{usuario.IdUsuario}"; // ID único por tarea y usuario
+
+                                                <!-- Botón para abrir el modal -->
+                                                <button type="button" class="btn btn-success btn-sm rounded-circle opacity-75" data-bs-toggle="modal" data-bs-target="#@modalId">                                                      
+                                                    <i class="bi bi-person"></i>
+                                                </button>
+
+                                                <!-- Modal con ID único -->
+                                                <section class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalId-Label" aria-hidden="true">
+                                                    <article class="modal-dialog modal-dialog-centered">
+                                                        <section class="modal-content shadow-lg rounded-3">
+                                                            <header class="modal-header bg-success text-white">
+                                                                <h2 class="modal-title fw-bold fs-5" id="@modalId-Label">Información de la Tarea</h2>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                            </header>
+                                                            <section class="modal-body text-center">
+                                                                <p class="fs-5 text-muted">Tarea asignada a: @usuario.NombreDeUsuario -- @usuario.Rol.</p>
+                                                            </section>
+                                                            <footer class="modal-footer">
+                                                                <a asp-controller="Tareas" asp-action="BorrarAsignarTarea" asp-route-idTareaB="@tarea.IdTarea" asp-route-idTablero="@tarea.IdTablero"
+                                                                    class="btn btn-danger">
+                                                                    <i class="bi bi-trash"></i> Eliminar Asignación
+                                                                </a>
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                            </footer>
+                                                        </section>
+                                                    </article>
+                                                </section>
+                                            }
+                                        }
+                                    }
+                                   
+                                    <a asp-controller="Tareas" asp-action="MoverTareaDerecha"
+                                        asp-route-idTarea="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-success btn-sm opacity-75">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </td>
+
+                    <!-- COMPLETADAS -->
+                    <td class="w-20">
+                        @foreach (var tarea in Model.TareasCompletadas)
+                        {
+                            
+                            <div class="d-flex flex-column p-2 mb-2 border rounded shadow-sm"
+                                style="background-color: #d1e7dd; width: 100%;">
+                                <div class="d-flex align-items-center">
+                                    <span class="flex-shrink-0 me-2 d-inline-block rounded-circle"
+                                        style="width: 12px; height: 12px; background-color: #198754;"></span>
+                                    <p class="fw-bold">#@tarea.IdTarea @tarea.Nombre</p>
+                                </div>
+                                <div>
+                                    <hr>
+                                    <small class="fw-bold">@tarea.Descripcion</small>
+                                </div>
+                                <div class="d-flex justify-content-evenly mt-2">
+                                    <a asp-controller="Tareas" asp-action="BorrarTarea" asp-route-idTareaB="@tarea.IdTarea"
+                                        class="rounded-circle btn btn-danger btn-sm opacity-75">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</section>
