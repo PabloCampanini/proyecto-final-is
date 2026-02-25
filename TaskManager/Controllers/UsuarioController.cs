@@ -7,7 +7,8 @@ public class UsuariosController : Controller
     private readonly ITableroRepository tableroRep;
     private readonly ILogger<UsuariosController> _logger;
 
-    public UsuariosController(IUsuarioRepository usuarioRepository, ITableroRepository tableroRepository)
+    public UsuariosController(IUsuarioRepository usuarioRepository, ITableroRepository tableroRepository, 
+    ILogger<UsuariosController> logger) : base(tableroRepository)
     {
         usuarioRep = usuarioRepository;
         tableroRep = tableroRepository;
@@ -65,12 +66,14 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult Password(int idUsuario)
     {
-        ModificarContraseñaVM contraseñaVM =
-            new ModificarContraseñaVM();
+        var IdPropietario = ValidarSesion();
+    
+        if (!IdPropietario.HasValue || IdPropietario.Value != idUsuario) return RedirectToAction("Index", "Home"); //Hago que solo el propio usuario pueda cambiar su contraseña
+    
+        ModificarContraseñaVM contraseñaVM = new ModificarContraseñaVM();
 
         contraseñaVM.IdUsuarioB = idUsuario;
-        contraseñaVM.ActualPassword =
-            usuarioRep.GetUsuarioById(idUsuario).Password;
+        contraseñaVM.ActualPassword = usuarioRep.GetUsuarioById(idUsuario).Password;
 
         return View(contraseñaVM);
     }
@@ -78,6 +81,10 @@ public class UsuariosController : Controller
     [HttpPost]
     public IActionResult Password(ModificarContraseñaVM contraseñaVM)
     {
+        var IdPropietario = ValidarSesion();
+    
+        if (!IdPropietario.HasValue || IdPropietario.Value != contraseñaVM.IdUsuarioB) return RedirectToAction("Index", "Home");
+    
         usuarioRep.ChangePassword(
             contraseñaVM.IdUsuarioB,
             contraseñaVM.newPassword
