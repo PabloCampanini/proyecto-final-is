@@ -101,6 +101,7 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult IncapazBorrarUsuario(int idUsuarioB)
     {
+        //Modificar cuando se tenga el logueo
         return View(idUsuarioB);
     }
 
