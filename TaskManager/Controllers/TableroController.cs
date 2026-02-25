@@ -2,24 +2,29 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Models;
 
-public class TableroController : Controller
+public class TableroController : ValidacionesController
 {
     private readonly ITableroRepository tableroRep;
     private readonly ITareaRepository tareaRep;
     private readonly IUsuarioRepository usuarioRep;
+    private readonly ILogger<TableroController> _logger;
 
     public TableroController(ITableroRepository tableroRepository, ITareaRepository tareaRepository,
-    IUsuarioRepository usuarioRepository)
+    IUsuarioRepository usuarioRepository, ILogger<TableroController> logger) : base(tableroRepository)
     {
         tableroRep = tableroRepository;
         tareaRep = tareaRepository;
         usuarioRep = usuarioRepository;
+        _logger = logger;
     }
 
     public IActionResult Index()
     {
         //Modificar cuando se tenga el logueo
         var IdPropietario = 0;
+
+        if (!IdPropietario.HasValue) return RedirectToAction("Index", "Login");
+    
     
         ListarTablerosVM tablerosVM = new ListarTablerosVM(
                                                             tableroRep.GetAllTableros(),
@@ -31,7 +36,10 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult TablerosAsignados()
     {
-        //Modificar cuando se tenga el logueo
+        var IdPropietario = ValidarSesion();
+    
+        if (!IdPropietario.HasValue) return RedirectToAction("Index", "Login");
+    
         var tablerosAsVM = new ListarTablerosAsVM(tableroRep.GetAllTableros());
     
         return View(tablerosAsVM);
@@ -40,6 +48,8 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult TablerosOtroUsuario(int idUsuarioB)
     {
+        if (!ValidarRol()) return RedirectToAction("Index", "Home");
+    
         ListarTablerosVM tablerosVM = new ListarTablerosVM(
                                                             tableroRep.GetAllTableros(),
                                                             idUsuarioB
@@ -50,7 +60,10 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult CrearTablero()
     {
-        //Modificar cuando se tenga el logueo
+        var IdCreador = ValidarSesion();
+    
+        if (!IdCreador.HasValue) return RedirectToAction("Index", "Login");
+    
         return View(new CrearTableroVM());
     }
 
@@ -64,10 +77,15 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult ModificarTablero(int idTableroB)
     {
-        //Modificar cuando se tenga el logueo
+        var IdSesion = ValidarSesion();
+    
+        if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
+    
         ModificarTableroVM tableroVM = new ModificarTableroVM();
         tableroVM.IdTablero = idTableroB;
         tableroVM.TableroModificar = tableroRep.GetTableroByIdTablero(idTableroB);
+    
+        if (!ValidarCreadorTablero(idTableroB)) return RedirectToAction("Index");
     
         return View(tableroVM);
     }
@@ -82,6 +100,7 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult CambiarPropietario(int idTableroB)
     {
+        if(!ValidarRol()) return RedirectToAction("Index");
     
         CambiarPropietarioVM propietarioVM = new CambiarPropietarioVM(usuarioRep.GetAllUsuarios());
         propietarioVM.TableroCambiar = tableroRep.GetTableroByIdTablero(idTableroB);
@@ -99,7 +118,15 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult BorrarTablero(int idTableroB)
     {
-        //Modificar cuando se tenga el logueo
+        //Verifico sesion
+        var IdSesion = ValidarSesion();
+    
+        if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
+    
+        //Verifico que solo Admin o dueño borre tablero
+        if (!(ValidarRol() || ValidarCreadorTablero(idTableroB))) return RedirectToAction("Index");
+    
+        //Verifico que no tenga tareas por resolver
         int cantidadTareas = tareaRep.GetAllTareasByIdTablero(idTableroB).Count;
     
         if (cantidadTareas != 0) return RedirectToAction("ErrorBorrarTablero", new { idTableroB = idTableroB });
@@ -117,6 +144,14 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult ErrorBorrarTablero(int idTableroB)
     {
+        //Verifico sesion
+        var IdSesion = ValidarSesion();
+    
+        if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
+    
+        //Verifico que solo Admin o dueño accedan 
+        if (!(ValidarRol() || ValidarCreadorTablero(idTableroB))) return RedirectToAction("Index");
+    
         return View(tableroRep.GetTableroByIdTablero(idTableroB));
     }
 
