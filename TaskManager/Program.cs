@@ -11,6 +11,7 @@ builder.Services.AddSingleton<string>(CadenaDeConexion);
 // Inyeccion de Repositorios - Uso AddScoped para que se cree una instancia por cada solicitud HTTP
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITableroRepository, TableroRepository>();
+builder.Services.AddScoped<ITareaRepository, TareaRepository>();
 
 var app = builder.Build();
 

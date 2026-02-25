@@ -1,0 +1,40 @@
+@{
+    ViewData["Title"] = "Modificar Tarea";
+}
+
+@model ModificarTareaVM
+
+<section class="container mt-5">
+    <h2 class="text-center text-primary">Modificar Tarea</h2>
+
+    <section class="row justify-content-center">
+        <section class="col-md-6">
+            <form asp-controller="Tareas" asp-action="ModificarTarea" method="post" class="p-4 border rounded shadow-sm bg-light">
+                <input hidden asp-for="@Model.TareaModificar.IdTarea">
+                <input hidden asp-for="@Model.TareaModificar.IdTablero">
+                <input hidden asp-for="@Model.TareaModificar.IdUsuarioAsignado">
+                <input hidden asp-for="@Model.TareaModificar.Estado">
+                <input hidden asp-for="@Model.TareaModificar.Color">
+
+
+                <!-- Nombre -->
+                <section class="mb-3">
+                    <label asp-for="@Model.TareaModificar.Nombre" class="form-label fw-bold">Nombre</label>
+                    <input asp-for="@Model.TareaModificar.Nombre" class="form-control" required>
+                </section>
+
+                <!-- Descripción -->
+                <section class="mb-3">
+                    <label asp-for="@Model.TareaModificar.Descripcion" class="form-label fw-bold">Descripción</label>
+                    <textarea asp-for="@Model.TareaModificar.Descripcion" class="form-control" rows="3"></textarea>
+                </section>
+
+                <!-- Botones -->
+                <section class="d-flex justify-content-between">
+                    <a asp-controller="Tareas" asp-action="Index" asp-route-idTablero="@Model.TareaModificar.IdTablero" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </section>
+            </form>
+        </section>
+    </section>
+</section>
