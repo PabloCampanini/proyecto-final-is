@@ -4,10 +4,12 @@ using TaskManager.Models;
 public class UsuariosController : Controller
 {
     private readonly IUsuarioRepository usuarioRep;
+    private readonly ITableroRepository tableroRep;
 
-    public UsuariosController(IUsuarioRepository usuarioRepository)
+    public UsuariosController(IUsuarioRepository usuarioRepository, ITableroRepository tableroRepository)
     {
         usuarioRep = usuarioRepository;
+        tableroRep = tableroRepository;
     }
 
     public IActionResult Index()
@@ -79,6 +81,13 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult BorrarUsuario(int idUsuarioB)
     {
+        var cantidadTableros = tableroRep.GetAllTablerosByIdCreador(idUsuarioB).Count;
+    
+        if (cantidadTableros != 0)
+        {
+            return RedirectToAction("IncapazBorrarUsuario", new{idUsuarioB = idUsuarioB});
+        }
+
         return View(usuarioRep.GetUsuarioById(idUsuarioB));
     }
 
@@ -89,4 +98,16 @@ public class UsuariosController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
+    public IActionResult IncapazBorrarUsuario(int idUsuarioB)
+    {
+        //Modificar cuando se tenga el logueo
+        return View(idUsuarioB);
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
 }

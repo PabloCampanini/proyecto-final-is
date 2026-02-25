@@ -5,12 +5,14 @@ using TaskManager.Models;
 public class TableroController : Controller
 {
     private readonly ITableroRepository tableroRep;
+    private readonly ITareaRepository tareaRep;
     private readonly IUsuarioRepository usuarioRep;
 
-    public TableroController(ITableroRepository tableroRepository, 
+    public TableroController(ITableroRepository tableroRepository, ITareaRepository tareaRepository,
     IUsuarioRepository usuarioRepository)
     {
         tableroRep = tableroRepository;
+        tareaRep = tareaRepository;
         usuarioRep = usuarioRepository;
     }
 
@@ -30,8 +32,6 @@ public class TableroController : Controller
     public IActionResult TablerosAsignados()
     {
         //Modificar cuando se tenga el logueo
-        var IdPropietario = 0;
-        
         var tablerosAsVM = new ListarTablerosAsVM(tableroRep.GetAllTableros());
     
         return View(tablerosAsVM);
@@ -65,8 +65,6 @@ public class TableroController : Controller
     public IActionResult ModificarTablero(int idTableroB)
     {
         //Modificar cuando se tenga el logueo
-        var IdSesion = 0;
-
         ModificarTableroVM tableroVM = new ModificarTableroVM();
         tableroVM.IdTablero = idTableroB;
         tableroVM.TableroModificar = tableroRep.GetTableroByIdTablero(idTableroB);
@@ -101,7 +99,11 @@ public class TableroController : Controller
     [HttpGet]
     public IActionResult BorrarTablero(int idTableroB)
     {
-        //Modificar cuando se tenga el logueo y tarea
+        //Modificar cuando se tenga el logueo
+        int cantidadTareas = tareaRep.GetAllTareasByIdTablero(idTableroB).Count;
+    
+        if (cantidadTareas != 0) return RedirectToAction("ErrorBorrarTablero", new { idTableroB = idTableroB });
+
         return View(tableroRep.GetTableroByIdTablero(idTableroB));
     }
 
