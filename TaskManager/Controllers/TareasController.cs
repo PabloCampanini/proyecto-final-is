@@ -2,22 +2,28 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Models;
 
-public class TareasController : Controller
+public class TareasController : ValidacionesController
 {
     private readonly ITareaRepository tareaRep;
     private readonly ITableroRepository tableroRep;
     private readonly IUsuarioRepository usuarioRep;
+    private readonly ILogger<TareasController> _logger;
+
 
     public TareasController(ITareaRepository tareaRepository, ITableroRepository tableroRepository, 
-    IUsuarioRepository usuarioRepository)
+    IUsuarioRepository usuarioRepository, ILogger<TareasController> logger) : base(tableroRepository)
     {
         tareaRep = tareaRepository;
         tableroRep = tableroRepository;
         usuarioRep = usuarioRepository;
+        _logger = logger;
     }
 
     public IActionResult Index(int idTablero)
     {
+        var IdSesion = ValidarSesion();
+
+        if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
         
         ListarTareaVM tareaVM = new ListarTareaVM(tareaRep.GetAllTareasByIdTablero(idTablero),
                                                   usuarioRep.GetAllUsuarios(),
@@ -36,7 +42,10 @@ public class TareasController : Controller
     [HttpGet]
     public IActionResult TareasAsignadas(int idTablero)
     {
-        // Modificar cuando se tenga el logueo
+        var IdSesion = ValidarSesion();
+    
+        if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
+    
         ListarTareaVM tareaVM = new ListarTareaVM(tareaRep.GetAllTareasByIdTablero(idTablero),
                                                   usuarioRep.GetAllUsuarios(),
                                                   idTablero);
@@ -54,6 +63,8 @@ public class TareasController : Controller
     [HttpGet]
     public IActionResult AsignarTarea(int idTareaB, int idTablero)
     {
+        if (!ValidarCreadorTablero(idTablero)) return RedirectToAction("Index", new { idTablero = idTablero });
+    
         AsignarTareaVM asignarVM = new AsignarTareaVM(idTareaB, idTablero);
 
         asignarVM.Usuarios = usuarioRep.GetAllUsuarios();
@@ -73,6 +84,7 @@ public class TareasController : Controller
     [HttpGet]
     public IActionResult BorrarAsignarTarea(int idTareaB, int idTablero)
     {
+        if (!ValidarCreadorTablero(idTablero)) return RedirectToAction("Index", new { idTablero = idTablero });
         AsignarTareaVM asignarVM = new AsignarTareaVM(idTareaB, idTablero);
 
         return View(asignarVM);
@@ -89,6 +101,8 @@ public class TareasController : Controller
     [HttpGet]
     public IActionResult CrearTarea(int idTableroB)
     {
+        if (!ValidarCreadorTablero(idTableroB)) return RedirectToAction("Index", new { idTablero = idTableroB });
+    
         CrearTareaVM tareaN = new CrearTareaVM();
         tareaN.NuevaTarea = tareaRep.CreateTarea(idTableroB);
 
@@ -106,6 +120,8 @@ public class TareasController : Controller
     public IActionResult ModificarTarea(int idTareaB)
     {
         ModificarTareaVM tareaVM = new ModificarTareaVM { TareaModificar = tareaRep.GetTareaByIdTarea(idTareaB) };
+        if (!ValidarCreadorTablero(tareaVM.TareaModificar.IdTablero)) return RedirectToAction("Index", new { idTablero = tareaVM.TareaModificar.IdTablero });
+    
         return View(tareaVM);
     }
 
@@ -181,6 +197,8 @@ public class TareasController : Controller
     {
         var tarea = tareaRep.GetTareaByIdTarea(idTareaB);
 
+        if (!ValidarCreadorTablero(tarea.IdTablero)) return RedirectToAction("Index", new { idTablero = tarea.IdTablero });
+    
         if (tarea.Estado != EstadoTarea.Done && tarea.Estado != EstadoTarea.Ideas)
         {
             return RedirectToAction("Index", new { idTablero = tarea.IdTablero });

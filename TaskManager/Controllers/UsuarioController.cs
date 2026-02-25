@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Models;
-public class UsuariosController : Controller
+public class UsuariosController : ValidacionesController
 {
     private readonly IUsuarioRepository usuarioRep;
     private readonly ITableroRepository tableroRep;
