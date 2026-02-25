@@ -21,14 +21,14 @@ public class TableroController : ValidacionesController
     public IActionResult Index()
     {
         //Modificar cuando se tenga el logueo
-        var IdPropietario = 0;
+        var IdPropietario = ValidarSesion();
 
         if (!IdPropietario.HasValue) return RedirectToAction("Index", "Login");
     
     
         ListarTablerosVM tablerosVM = new ListarTablerosVM(
                                                             tableroRep.GetAllTableros(),
-                                                            IdPropietario
+                                                            IdPropietario.Value
                                                           );
         return View(tablerosVM);
     }
