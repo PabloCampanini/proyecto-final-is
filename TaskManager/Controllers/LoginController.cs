@@ -17,4 +17,33 @@ public class LoginController : Controller
     {
         return View(new LoginVM());
     }
+
+    [HttpPost]
+    public IActionResult Login(LoginVM UsuarioCargado)
+    {
+        var usuario = usuarioRep.GetAllUsuarios().FirstOrDefault(u => u.Email == UsuarioCargado.Email && u.Password == UsuarioCargado.Password);
+
+        if (usuario == null)
+        {
+            string accesoRechazado = "Intento de acceso invalido - Usuario: " + UsuarioCargado.Email + " - Clave: " + UsuarioCargado.Password;
+
+            Console.WriteLine(accesoRechazado);
+            _logger.LogWarning(accesoRechazado);
+
+            UsuarioCargado.ErrorMessage = "Usuario o Contraseña incorrectos. Ingrese sus datos nuevamente";
+
+            return View("Index", UsuarioCargado);
+        }
+
+        string accesoExitoso = "El usuario " + usuario.Email + " ingreso correctamente";
+
+        Console.WriteLine(accesoExitoso);
+        _logger.LogInformation(accesoExitoso);
+
+        HttpContext.Session.SetString("rolSesion", usuario.Rol.ToString());
+        HttpContext.Session.SetString("usuario", usuario.NombreDeUsuario);
+        HttpContext.Session.SetInt32("idSesion", usuario.IdUsuario);
+
+        return RedirectToAction("Index", "Home");
+    }
 }

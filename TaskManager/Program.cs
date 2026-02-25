@@ -13,6 +13,16 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITableroRepository, TableroRepository>();
 builder.Services.AddScoped<ITareaRepository, TareaRepository>();
 
+//Habilitar sesion
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Expira en 30 min de inactividad
+    options.Cookie.HttpOnly = true; // Más seguro
+    options.Cookie.IsEssential = true; // Necesario para que funcione en GDPR
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
