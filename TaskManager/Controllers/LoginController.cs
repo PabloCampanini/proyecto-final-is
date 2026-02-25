@@ -46,4 +46,23 @@ public class LoginController : Controller
 
         return RedirectToAction("Index", "Home");
     }
+
+    [HttpGet]
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Clear();
+
+        string mensajeLogout = "Sesión cerrada correctamente.";
+
+        Console.WriteLine(mensajeLogout);
+        _logger.LogInformation(mensajeLogout);
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
 }
