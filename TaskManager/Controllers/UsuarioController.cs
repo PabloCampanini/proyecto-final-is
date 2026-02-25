@@ -5,17 +5,20 @@ public class UsuariosController : Controller
 {
     private readonly IUsuarioRepository usuarioRep;
     private readonly ITableroRepository tableroRep;
+    private readonly ILogger<UsuariosController> _logger;
 
     public UsuariosController(IUsuarioRepository usuarioRepository, ITableroRepository tableroRepository)
     {
         usuarioRep = usuarioRepository;
         tableroRep = tableroRepository;
+        _logger = logger;
     }
 
     public IActionResult Index()
     {
-        ListarUsuariosVM usuariosVM =
-            new ListarUsuariosVM(usuarioRep.GetAllUsuarios());
+        if (!ValidarRol()) return RedirectToAction("Index", "Home");
+
+        ListarUsuariosVM usuariosVM = new ListarUsuariosVM(usuarioRep.GetAllUsuarios());
 
         return View(usuariosVM);
     }
@@ -23,12 +26,15 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult CrearUsuario()
     {
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
+
         return View(new CrearUsuarioVM());
     }
 
     [HttpPost]
     public IActionResult CrearUsuario(CrearUsuarioVM usuarioCargado)
     {
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
         usuarioRep.CreateUsuario(usuarioCargado.UsuarioNuevo);
         return RedirectToAction("Index");
     }
@@ -36,6 +42,7 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult ModificarUsuario(int idUsuarioB)
     {
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
         ModificarUsuarioVM usuarioM = new ModificarUsuarioVM();
         usuarioM.UsuarioAModificar =
             usuarioRep.GetUsuarioById(idUsuarioB);
@@ -46,6 +53,7 @@ public class UsuariosController : Controller
     [HttpPost]
     public IActionResult ModificarUsuario(ModificarUsuarioVM usuarioM)
     {
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
         usuarioRep.UpdateUsuario(
             usuarioM.UsuarioAModificar.IdUsuario,
             usuarioM.UsuarioAModificar
@@ -81,6 +89,8 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult BorrarUsuario(int idUsuarioB)
     {
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
+
         var cantidadTableros = tableroRep.GetAllTablerosByIdCreador(idUsuarioB).Count;
     
         if (cantidadTableros != 0)
@@ -94,6 +104,7 @@ public class UsuariosController : Controller
     [HttpPost]
     public IActionResult BorrarUsuario(Usuarios usuarioB)
     {
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
         usuarioRep.DeleteUsuario(usuarioB.IdUsuario);
         return RedirectToAction("Index");
     }
@@ -101,7 +112,7 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult IncapazBorrarUsuario(int idUsuarioB)
     {
-        //Modificar cuando se tenga el logueo
+        if(!ValidarRol()) return RedirectToAction("Index", "Home");
         return View(idUsuarioB);
     }
 
