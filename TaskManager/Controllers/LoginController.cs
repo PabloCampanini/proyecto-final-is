@@ -21,43 +21,61 @@ public class LoginController : Controller
     [HttpPost]
     public IActionResult Login(LoginVM UsuarioCargado)
     {
-        var usuario = usuarioRep.GetAllUsuarios().FirstOrDefault(u => u.Email == UsuarioCargado.Email && u.Password == UsuarioCargado.Password);
-
-        if (usuario == null)
+        try
         {
-            string accesoRechazado = "Intento de acceso invalido - Usuario: " + UsuarioCargado.Email + " - Clave: " + UsuarioCargado.Password;
+            var usuario = usuarioRep.GetAllUsuarios().FirstOrDefault(u => u.Email == UsuarioCargado.Email && u.Password == UsuarioCargado.Password);
 
-            Console.WriteLine(accesoRechazado);
-            _logger.LogWarning(accesoRechazado);
+            if (usuario == null)
+            {
+                string accesoRechazado = "Intento de acceso invalido - Usuario: " + UsuarioCargado.Email + " - Clave: " + UsuarioCargado.Password;
 
-            UsuarioCargado.ErrorMessage = "Usuario o Contraseña incorrectos. Ingrese sus datos nuevamente";
+                Console.WriteLine(accesoRechazado);
+                _logger.LogWarning(accesoRechazado);
 
-            return View("Index", UsuarioCargado);
+                UsuarioCargado.ErrorMessage = "Usuario o Contraseña incorrectos. Ingrese sus datos nuevamente";
+
+                return View("Index", UsuarioCargado);
+            }
+
+            string accesoExitoso = "El usuario " + usuario.Email + " ingreso correctamente";
+
+            Console.WriteLine(accesoExitoso);
+            _logger.LogInformation(accesoExitoso);
+
+            HttpContext.Session.SetString("rolSesion", usuario.Rol.ToString());
+            HttpContext.Session.SetString("usuario", usuario.NombreDeUsuario);
+            HttpContext.Session.SetInt32("idSesion", usuario.IdUsuario);
+
+            return RedirectToAction("Index", "Home");
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.ToString());
 
-        string accesoExitoso = "El usuario " + usuario.Email + " ingreso correctamente";
-
-        Console.WriteLine(accesoExitoso);
-        _logger.LogInformation(accesoExitoso);
-
-        HttpContext.Session.SetString("rolSesion", usuario.Rol.ToString());
-        HttpContext.Session.SetString("usuario", usuario.NombreDeUsuario);
-        HttpContext.Session.SetInt32("idSesion", usuario.IdUsuario);
-
-        return RedirectToAction("Index", "Home");
+            return BadRequest();
+        }
     }
 
     [HttpGet]
     public IActionResult Logout()
     {
-        HttpContext.Session.Clear();
+        try
+        {
+            HttpContext.Session.Clear();
 
-        string mensajeLogout = "Sesión cerrada correctamente.";
+            string mensajeLogout = "Sesión cerrada correctamente.";
 
-        Console.WriteLine(mensajeLogout);
-        _logger.LogInformation(mensajeLogout);
+            Console.WriteLine(mensajeLogout);
+            _logger.LogInformation(mensajeLogout);
 
-        return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Home");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.ToString());
+
+            return BadRequest();
+        }
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

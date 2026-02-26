@@ -39,7 +39,14 @@ public class TareaRepository : ITareaRepository
             command.Parameters.Add(new SqliteParameter("@idColor", (int)nuevaTarea.Color));
             command.Parameters.Add(new SqliteParameter("@idUsuario", nuevaTarea.IdUsuarioAsignado ?? (object)DBNull.Value));
 
-            command.ExecuteNonQuery();
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception("Error al crear una tarea. Verifique los datos enviados");
+            }
+
+            connection.Close();
         }
     }
 
@@ -76,7 +83,12 @@ public class TareaRepository : ITareaRepository
 
             command.Parameters.Add(new SqliteParameter("@idTarea", idTarea));
 
-            command.ExecuteNonQuery();
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception("Error al actualizar una tarea. Verifique el id enviado y los datos");
+            }
 
             connection.Close();
         }
@@ -124,105 +136,120 @@ public class TareaRepository : ITareaRepository
             connection.Close();
         }
 
+        if (tareaDb == null)
+        {
+            throw new Exception($"No se encontro una tarea de id {idTareaBuscada}");            
+        }
+
         return tareaDb;
     }
 
     public List<Tareas> GetAllTareasByIdUsuario(int idUsuario)
     {
-        List<Tareas> ListaTareas = new List<Tareas>();
-
-        string queryString = @"SELECT id_tarea,
-                                    id_tablero,
-                                    nombre,
-                                    id_estado,
-                                    descripcion,
-                                    id_color,
-                                    id_usuario_asignado
-                            FROM Tarea
-                            WHERE id_usuario_asignado = @idUsuario;";
-
-        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        try
         {
-            SqliteCommand command = new SqliteCommand(queryString, connection);
-
-            connection.Open();
-
-            command.Parameters.Add(new SqliteParameter("@idUsuario", idUsuario));
-
-            using (SqliteDataReader reader = command.ExecuteReader())
+            List<Tareas> ListaTareas = new List<Tareas>();
+    
+            string queryString = @"SELECT id_tarea,
+                                          id_tablero,
+                                          nombre,
+                                          id_estado,
+                                          descripcion,
+                                          id_color,
+                                          id_usuario_asignado
+                                   FROM Tarea
+                                   WHERE id_usuario_asignado = @idUsuario;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
             {
-                while (reader.Read())
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                command.Parameters.Add(new SqliteParameter("@idUsuario", idUsuario));
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
                 {
-                    Tareas tareaDb = new Tareas
+                    while (reader.Read())
                     {
-                        IdTarea = Convert.ToInt32(reader["id_tarea"]),
-                        IdTablero = Convert.ToInt32(reader["id_tablero"]),
-                        Nombre = Convert.ToString(reader["nombre"]),
-                        Estado = (EstadoTarea)Convert.ToInt32(reader["id_estado"]),
-                        Descripcion = Convert.ToString(reader["descripcion"]),
-                        Color = (Color)Convert.ToInt32(reader["id_color"]),
-                        IdUsuarioAsignado = reader["id_usuario_asignado"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(reader["id_usuario_asignado"])
-                    };
-
-                    ListaTareas.Add(tareaDb);
+                        Tareas tareaDb = new Tareas
+                        {
+                            IdTarea = Convert.ToInt32(reader["id_tarea"]),
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Estado = (EstadoTarea)Convert.ToInt32(reader["id_estado"]),
+                            Descripcion = Convert.ToString(reader["descripcion"]),
+                            Color = (Color)Convert.ToInt32(reader["id_color"]),
+                            IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_asignado"] == DBNull.Value ? null : reader["id_usuario_asignado"])
+                        };
+    
+                        ListaTareas.Add(tareaDb);
+                    }
                 }
+    
+                connection.Close();
             }
-
-            connection.Close();
+    
+            return ListaTareas;
         }
-
-        return ListaTareas;
-    }   
+        catch (Exception ex)
+        {
+            throw new Exception($"Ocurrio un error al tratar de obtener las tareas del usuario {idUsuario}.", ex);
+        }
+    }  
 
     public List<Tareas> GetAllTareasByIdTablero(int idTablero)
     {
-        List<Tareas> ListaTareas = new List<Tareas>();
-
-        string queryString = @"SELECT id_tarea,
-                                    id_tablero,
-                                    nombre,
-                                    id_estado,
-                                    descripcion,
-                                    id_color,
-                                    id_usuario_asignado
-                            FROM Tarea
-                            WHERE id_tablero = @idTablero;";
-
-        using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
+        try
         {
-            SqliteCommand command = new SqliteCommand(queryString, connection);
-
-            connection.Open();
-
-            command.Parameters.Add(new SqliteParameter("@idTablero", idTablero));
-
-            using (SqliteDataReader reader = command.ExecuteReader())
+            List<Tareas> ListaTareas = new List<Tareas>();
+    
+            string queryString = @"SELECT id_tarea,
+                                          id_tablero,
+                                          nombre,
+                                          id_estado,
+                                          descripcion,
+                                          id_color,
+                                          id_usuario_asignado
+                                   FROM Tarea
+                                   WHERE id_tablero = @idTablero;";
+    
+            using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
             {
-                while (reader.Read())
+                SqliteCommand command = new SqliteCommand(queryString, connection);
+    
+                connection.Open();
+    
+                command.Parameters.Add(new SqliteParameter("@idTablero", idTablero));
+    
+                using (SqliteDataReader reader = command.ExecuteReader())
                 {
-                    Tareas tareaDb = new Tareas
+                    while (reader.Read())
                     {
-                        IdTarea = Convert.ToInt32(reader["id_tarea"]),
-                        IdTablero = Convert.ToInt32(reader["id_tablero"]),
-                        Nombre = Convert.ToString(reader["nombre"]),
-                        Estado = (EstadoTarea)Convert.ToInt32(reader["id_estado"]),
-                        Descripcion = Convert.ToString(reader["descripcion"]),
-                        Color = (Color)Convert.ToInt32(reader["id_color"]),
-                        IdUsuarioAsignado = reader["id_usuario_asignado"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(reader["id_usuario_asignado"])
-                    };
-
-                    ListaTareas.Add(tareaDb);
+                        Tareas tareaDb = new Tareas
+                        {
+                            IdTarea = Convert.ToInt32(reader["id_tarea"]),
+                            IdTablero = Convert.ToInt32(reader["id_tablero"]),
+                            Nombre = Convert.ToString(reader["nombre"]),
+                            Estado = (EstadoTarea)Convert.ToInt32(reader["id_estado"]),
+                            Descripcion = Convert.ToString(reader["descripcion"]),
+                            Color = (Color)Convert.ToInt32(reader["id_color"]),
+                            IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_asignado"] == DBNull.Value ? null : reader["id_usuario_asignado"])
+                        };
+    
+                        ListaTareas.Add(tareaDb);
+                    }
                 }
+    
+                connection.Close();
             }
-
-            connection.Close();
+    
+            return ListaTareas;
         }
-
-        return ListaTareas;
+        catch (Exception ex)
+        {
+            throw new Exception($"Ocurrio un error al tratar de obtener las tareas del tablero {idTablero}.", ex);
+        }
     }
 
     public void DeleteTarea(int idTareaB)
@@ -237,7 +264,12 @@ public class TareaRepository : ITareaRepository
 
             command.Parameters.Add(new SqliteParameter("@idTareaB", idTareaB));
 
-            command.ExecuteNonQuery();
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new Exception($"No se encontro una tarea con id {idTareaB}");
+            }
 
             connection.Close();
         }
@@ -265,8 +297,12 @@ public class TareaRepository : ITareaRepository
                 command.Parameters.Add(new SqliteParameter("@idUsuario", DBNull.Value));
             }
 
+            int filas = command.ExecuteNonQuery();
 
-            command.ExecuteNonQuery();
+            if (filas == 0)
+            {
+                throw new Exception("No se pudo asignar la tarea. Verifique los datos enviados");
+            }
 
             connection.Close();
         }
