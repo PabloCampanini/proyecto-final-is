@@ -25,7 +25,9 @@ public class UsuarioRepository : IUsuarioRepository
             command.Parameters.Add(new SqliteParameter("@Password", nuevoUsuario.Password));
             command.Parameters.Add(new SqliteParameter("@Rol", (int)nuevoUsuario.Rol));
 
-            command.ExecuteNonQuery();
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0) throw new Exception("No se pudo cargar el usuario. Verifique los datos mandados");
 
             connection.Close();
         }
@@ -50,7 +52,9 @@ public class UsuarioRepository : IUsuarioRepository
             command.Parameters.Add(new SqliteParameter(@"Rol", (int)usuario.Rol));
             command.Parameters.Add(new SqliteParameter(@"idBuscado", idBuscado));
 
-            command.ExecuteNonQuery();
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0) throw new Exception($"No se pudo modificar el usuario id {idBuscado}. Verifique los datos mandados");
 
             connection.Close();
         }
@@ -93,6 +97,11 @@ public class UsuarioRepository : IUsuarioRepository
             connection.Close();
         }
 
+        if (ListaUsuarios.Count == 0)
+        {
+            throw new Exception("Error al obtener la lista de usuarios.");
+        }
+
         return ListaUsuarios;
     }
 
@@ -131,12 +140,17 @@ public class UsuarioRepository : IUsuarioRepository
             connection.Close();
         }
 
+        if (usuarioDb == null)
+        {
+            throw new Exception($"No se encontro un usuario con id {idBuscado}");
+        }
+
         return usuarioDb;
     }
 
-    public void DeleteUsuario(int IdUsuario)
+    public void DeleteUsuario(int IdUsuarioB)
     {
-        string queryString = @"DELETE FROM Usuario WHERE id_usuario = @idUsuario;";
+        string queryString = @"DELETE FROM Usuario WHERE id_usuario = @idUsuarioB;";
 
         using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
         {
@@ -144,9 +158,11 @@ public class UsuarioRepository : IUsuarioRepository
 
             connection.Open();
 
-            command.Parameters.Add(new SqliteParameter("@idUsuario", IdUsuario));
+            command.Parameters.Add(new SqliteParameter("@idUsuarioB", IdUsuarioB));
 
-            command.ExecuteNonQuery();
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0) throw new Exception($"Error al borrar. No se encontro un usuario con id {idUsuarioB}.");
 
             connection.Close();
         }
@@ -164,6 +180,10 @@ public class UsuarioRepository : IUsuarioRepository
 
             command.Parameters.Add(new SqliteParameter("@newPassword", newPassword));
             command.Parameters.Add(new SqliteParameter("@idBuscado", idBuscado));
+
+            int filas = command.ExecuteNonQuery();
+
+            if (filas == 0) throw new Exception("Error al modificar la contraseña. Verifique los datos mandados");
 
             connection.Close();
         }
