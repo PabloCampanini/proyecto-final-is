@@ -1,0 +1,24 @@
+@{
+    ViewData["title"] = "Borrar Usuario";
+}
+
+@model int
+
+<section>
+    <article class="alert alert-danger text-center">
+        <h2 class="fw-bold">No se puede borrar el usuario</h2>
+        <p>No se puede borrar el usuario debido a que tiene tableros en su poder</p>
+
+        <section class="d-flex justify-content-between mt-2">
+            <a asp-controller="Usuarios" asp-action="Index"
+                class="btn btn-secondary btn-sm">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+
+            <a asp-controller="Tablero" asp-action="TablerosOtroUsuario" asp-route-idUsuarioB="@Model"
+                class="btn btn-primary btn-sm">
+                <i class="bi bi-eye"></i> Ver Tableros
+            </a>
+        </section>
+    </article>
+</section>
