@@ -20,14 +20,13 @@ public class TableroController : ValidacionesController
 
     public IActionResult Index()
     {
-        //Modificar cuando se tenga el logueo
         var IdPropietario = ValidarSesion();
 
         if (!IdPropietario.HasValue) return RedirectToAction("Index", "Login");
     
     
         ListarTablerosVM tablerosVM = new ListarTablerosVM(
-                                                            tableroRep.GetAllTableros(),
+                                                            tableroRep.GetAllTablerosByIdCreador(IdPropietario.Value),
                                                             IdPropietario.Value
                                                           );
         return View(tablerosVM);
@@ -40,7 +39,7 @@ public class TableroController : ValidacionesController
     
         if (!IdPropietario.HasValue) return RedirectToAction("Index", "Login");
     
-        var tablerosAsVM = new ListarTablerosAsVM(tableroRep.GetAllTableros());
+        var tablerosAsVM = new ListarTablerosAsVM(tableroRep.GetAllTablerosByIdUsAsignado(IdPropietario.Value));
     
         return View(tablerosAsVM);
     }
@@ -64,7 +63,8 @@ public class TableroController : ValidacionesController
     
         if (!IdCreador.HasValue) return RedirectToAction("Index", "Login");
     
-        return View(new CrearTableroVM());
+        CrearTableroVM tableroVM = new CrearTableroVM { IdCreador = IdCreador.Value };
+        return View(tableroVM);
     }
 
     [HttpPost]
@@ -81,9 +81,11 @@ public class TableroController : ValidacionesController
     
         if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
     
-        ModificarTableroVM tableroVM = new ModificarTableroVM();
-        tableroVM.IdTablero = idTableroB;
-        tableroVM.TableroModificar = tableroRep.GetTableroByIdTablero(idTableroB);
+        ModificarTableroVM tableroVM = new ModificarTableroVM
+        {
+            IdTablero = idTableroB,
+            TableroModificar = tableroRep.GetTableroByIdTablero(idTableroB)
+        };
     
         if (!ValidarCreadorTablero(idTableroB)) return RedirectToAction("Index");
     
