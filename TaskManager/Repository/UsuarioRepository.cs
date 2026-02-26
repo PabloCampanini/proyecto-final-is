@@ -148,9 +148,9 @@ public class UsuarioRepository : IUsuarioRepository
         return usuarioDb;
     }
 
-    public void DeleteUsuario(int IdUsuarioB)
+    public void DeleteUsuario(int IdUsuario)
     {
-        string queryString = @"DELETE FROM Usuario WHERE id_usuario = @idUsuarioB;";
+        string queryString = @"DELETE FROM Usuario WHERE id_usuario = @idUsuario;";
 
         using (SqliteConnection connection = new SqliteConnection(_ConnectionString))
         {
@@ -158,11 +158,11 @@ public class UsuarioRepository : IUsuarioRepository
 
             connection.Open();
 
-            command.Parameters.Add(new SqliteParameter("@idUsuarioB", IdUsuarioB));
+            command.Parameters.Add(new SqliteParameter("@idUsuario", IdUsuario));
 
             int filas = command.ExecuteNonQuery();
 
-            if (filas == 0) throw new Exception($"Error al borrar. No se encontro un usuario con id {idUsuarioB}.");
+            if (filas == 0) throw new Exception($"Error al borrar. No se encontro un usuario con id {IdUsuario}.");
 
             connection.Close();
         }
