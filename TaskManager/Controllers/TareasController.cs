@@ -46,7 +46,7 @@ public class TareasController : ValidacionesController
     
         if (!IdSesion.HasValue) return RedirectToAction("Index", "Login");
     
-        ListarTareaVM tareaVM = new ListarTareaVM(tareaRep.GetAllTareasByIdTablero(idTablero),
+        ListarTareaVM tareaVM = new ListarTareaVM(tareaRep.GetAllTareasByIdTablero(IdSesion.Value),
                                                   usuarioRep.GetAllUsuarios(),
                                                   idTablero);
 
