@@ -40,27 +40,30 @@
                 <tbody>
                     @foreach (var usuario in Model.Administradores)
                     {
-                        <tr>
-                            <th scope="row">@usuario.IdUsuario</th>
-                            <td>@usuario.NombreDeUsuario</td>
-                            <td>@usuario.Email</td>
-                            <td>Administrador</td>
-                            <td>
-                                <a class="btn btn-sm btn-warning" role="button" asp-area="" asp-controller="Usuarios"
-                                    asp-action="ModificarUsuario" asp-route-idUsuarioB="@usuario.IdUsuario"><i
-                                        class="bi bi-pencil"></i> Modificar</a>
-                            </td>
-                            <td>
-                                <a class="btn btn-sm btn-danger" role="button" asp-area="" asp-controller="Usuarios"
-                                    asp-action="BorrarUsuario" asp-route-idUsuarioB="@usuario.IdUsuario">
-                                    <i class="bi bi-trash"></i> Eliminar</a>
-                            </td>
-                            <td>
-                                <a class="btn btn-sm btn-primary" role="button" asp-area="" asp-controller="Tablero"
-                                    asp-action="TablerosOtroUsuario" asp-route-idUsuarioB="@usuario.IdUsuario">
-                                    <i class="bi bi-eye"></i> Ver Tableros</a>
-                            </td>
-                        </tr>
+                        if (Context.Session.GetInt32("idSesion") != usuario.IdUsuario)
+                        {
+                            <tr>
+                                <th scope="row">@usuario.IdUsuario</th>
+                                <td>@usuario.NombreDeUsuario</td>
+                                <td>@usuario.Email</td>
+                                <td>Administrador</td>
+                                <td>
+                                    <a class="btn btn-sm btn-warning" role="button" asp-area="" asp-controller="Usuarios"
+                                        asp-action="ModificarUsuario" asp-route-idUsuarioB="@usuario.IdUsuario"><i
+                                            class="bi bi-pencil"></i> Modificar</a>
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-danger" role="button" asp-area="" asp-controller="Usuarios"
+                                        asp-action="BorrarUsuario" asp-route-idUsuarioB="@usuario.IdUsuario">
+                                        <i class="bi bi-trash"></i> Eliminar</a>
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary" role="button" asp-area="" asp-controller="Tablero"
+                                        asp-action="TablerosOtroUsuario" asp-route-idUsuarioB="@usuario.IdUsuario">
+                                        <i class="bi bi-eye"></i> Ver Tableros</a>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
