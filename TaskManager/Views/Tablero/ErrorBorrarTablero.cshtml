@@ -16,17 +16,21 @@
             <i class="bi bi-arrow-left-circle"></i> Cancelar
         </a>
 
-        <!-- Modificar cuando se tenga el logueo -->
-        <!-- Botón para cambiar propietario -->
-        <a asp-controller="Tablero" asp-action="CambiarPropietario" asp-route-idTableroB="@Model.IdTablero"
-            class="btn btn-warning">
-            <i class="bi bi-person"></i> Cambiar Propietario
-        </a>
+        @if (Context.Session.GetString("rolSesion") == "Administrador")
+        {
+            <!-- Botón para cambiar propietario -->
+            <a asp-controller="Tablero" asp-action="CambiarPropietario" asp-route-idTableroB="@Model.IdTablero"
+                class="btn btn-warning">
+                <i class="bi bi-person"></i> Cambiar Propietario
+            </a>
+        }
 
-        <!-- Modificar cuando se tenga el logueo -->
-        <!-- Botón para ver el tablero -->
-        <a asp-controller="Tareas" asp-action="Index" asp-route-idTablero="@Model.IdTablero" class="btn btn-primary">
-            <i class="bi bi-kanban"></i> Ver Tablero
-        </a>
+        @if (Context.Session.GetInt32("idSesion") == Model.IdUsuarioPropietario)
+        {
+            <!-- Botón para ver el tablero -->
+            <a asp-controller="Tareas" asp-action="Index" asp-route-idTablero="@Model.IdTablero" class="btn btn-primary">
+                <i class="bi bi-kanban"></i> Ver Tablero
+            </a>
+        }
     </section>
 </section>
