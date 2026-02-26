@@ -90,7 +90,7 @@ public class UsuariosController : ValidacionesController
             contraseñaVM.newPassword
         );
 
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpGet]
