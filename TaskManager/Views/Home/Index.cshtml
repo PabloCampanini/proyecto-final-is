@@ -8,5 +8,10 @@
     </h1>
     <p class="lead">Organiza tus tareas de manera eficiente.</p>
 
-    
+    @if (Context.Session.GetInt32(key: "idSesion") == null)
+    {
+        <a class="btn btn-primary btn-lg mt-3" asp-controller="Login" asp-action="Index">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+        </a>
+    }
 </div>
