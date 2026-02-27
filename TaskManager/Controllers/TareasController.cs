@@ -99,6 +99,13 @@ public class TareasController : ValidacionesController
     [HttpPost]
     public IActionResult AsignarTarea(AsignarTareaVM asignarTarea)
     {
+        if (!ModelState.IsValid)
+        {
+            asignarTarea.Usuarios = usuarioRep.GetAllUsuarios();
+
+            return View(asignarTarea);
+        }
+        
         try
         {
             tareaRep.AsignarTarea(asignarTarea.IdUsuarioAsignado, asignarTarea.IdTarea);
