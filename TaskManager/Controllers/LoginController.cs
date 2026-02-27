@@ -21,6 +21,11 @@ public class LoginController : Controller
     [HttpPost]
     public IActionResult Login(LoginVM UsuarioCargado)
     {
+        if (!ModelState.IsValid)
+        {
+            return View("Index", UsuarioCargado);
+        }
+
         try
         {
             var usuario = usuarioRep.GetAllUsuarios().FirstOrDefault(u => u.Email == UsuarioCargado.Email && u.Password == UsuarioCargado.Password);

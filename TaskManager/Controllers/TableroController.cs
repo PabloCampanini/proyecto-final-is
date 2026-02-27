@@ -101,6 +101,16 @@ public class TableroController : ValidacionesController
     [HttpPost]
     public IActionResult CrearTablero(CrearTableroVM tableroNuevo)
     {
+        var IdCreador = ValidarSesion();
+        
+        if (!IdCreador.HasValue) return RedirectToAction("Index", "Login");
+
+        if (!ModelState.IsValid)
+        {
+            tableroNuevo.IdCreador = IdCreador.Value;
+            return View(tableroNuevo);
+        }
+
         try
         {
             tableroRep.CreateTablero(tableroNuevo.IdCreador, tableroNuevo.NombreTablero, tableroNuevo.DescripcionTablero);
