@@ -1,0 +1,44 @@
+@{
+    ViewData["title"] = "Asignar tarea";
+}
+
+@model AsignarTareaVM
+
+<section class="container mt-5">
+    <h2 class="text-center mb-4">Asignar tarea</h2>
+
+    <section class="card shadow-lg p-4">
+        <form asp-controller="Tareas" asp-action="AsignarTarea" method="post">
+            <input hidden asp-for="@Model.IdTablero">
+            <input hidden asp-for="@Model.IdTarea">
+
+            <section class="mb-3">
+                <label class="form-label fw-bold">Seleccione a quien asignar:</label>
+                <select class="form-select" asp-for="@Model.IdUsuarioAsignado" required>
+                    <option value="" disabled selected>Seleccione un usuario...</option>
+                    @foreach (var usuario in Model.Usuarios)
+                    {
+                        if (Context.Session.GetInt32("idSesion") != usuario.IdUsuario)
+                        {
+                            <option value="@usuario.IdUsuario">@usuario.NombreDeUsuario - @usuario.Rol</option>
+                        }
+                    }
+                </select>
+            </section>
+
+            <section class="d-flex justify-content-between">
+                <a asp-controller="Tarea" asp-action="Index" asp-route-idTablero="@Model.IdTablero"
+                    class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-floppy"></i> Guardar Cambios
+                </button>
+            </section>
+        </form>
+    </section>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Crear Tarea";
+}
+
+@model CrearTareaVM
+
+<section class="container mt-5">
+    <h2 class="text-center text-primary">Crear Nueva Tarea</h2>
+    <p class="text-center text-muted">Complete los datos para agregar una nueva tarea.</p>
+
+    <section class="row justify-content-center">
+        <section class="col-md-6">
+            <form asp-controller="Tareas" asp-action="CrearTarea" method="post"
+                class="p-4 border rounded shadow-sm bg-light">
+                <input hidden asp-for="@Model.NuevaTarea.IdTablero">
+                <input hidden asp-for="@Model.NuevaTarea.IdUsuarioAsignado">
+
+                <!-- Nombre -->
+                <section class="mb-3">
+                    <label asp-for="@Model.NuevaTarea.Nombre" class="form-label fw-bold">Nombre</label>
+                    <input asp-for="@Model.NuevaTarea.Nombre" class="form-control" required>
+                </section>
+
+                <!-- Descripción -->
+                <section class="mb-3">
+                    <label asp-for="@Model.NuevaTarea.Descripcion" class="form-label fw-bold">Descripción</label>
+                    <textarea asp-for="@Model.NuevaTarea.Descripcion" class="form-control" rows="3"></textarea>
+                </section>
+
+                <!-- Tipo de tarea -->
+                <section class="mb-3">
+                    <label class="form-label fw-bold">Tipo de tarea</label>
+                    <section class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoTarea" id="tipoIdea" value="idea"
+                            checked>
+                        <label class="form-check-label" for="tipoIdea">Idea</label>
+                    </section>
+                    <section class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoTarea" id="tipoTarea" value="tarea">
+                        <label class="form-check-label" for="tipoTarea">Tarea</label>
+                    </section>
+                </section>
+
+                <!-- Selección de importancia (solo si es tarea) -->
+                <section id="importanciaSection" class="mb-3 d-none">
+                    <label class="form-label fw-bold">Importancia</label>
+                    <section class="form-check">
+                        <input class="form-check-input" type="radio" name="importancia" id="urgente" value="urgente">
+                        <label class="form-check-label" for="urgente">Urgente</label>
+                    </section>
+                    <section class="form-check">
+                        <input class="form-check-input" type="radio" name="importancia" id="noTanUrgente"
+                            value="noTanUrgente">
+                        <label class="form-check-label" for="noTanUrgente">No tan urgente</label>
+                    </section>
+                </section>
+
+                <!-- Inputs ocultos para Estado y Color -->
+                <input type="hidden" id="estadoTarea" asp-for="@Model.NuevaTarea.Estado">
+                <input type="hidden" id="colorTarea" asp-for="@Model.NuevaTarea.Color">
+
+                <!-- Botones -->
+                <section class="d-flex justify-content-between">
+                    <a asp-controller="Tareas" asp-action="Index" asp-route-idTablero="@Model.NuevaTarea.IdTablero"
+                        class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar Tarea</button>
+                </section>
+            </form>
+        </section>
+    </section>
+</section>
+
+<script src="~/js/CrearTarea.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

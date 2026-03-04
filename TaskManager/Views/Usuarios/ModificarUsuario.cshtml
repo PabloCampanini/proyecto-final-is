@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Modificar usuario";
+}
+
+@model ModificarUsuarioVM
+
+<section class="container mt-4">
+    <article class="row justify-content-center">
+        <section class="col-md-6">
+            <section class="bg-primary text-white text-center py-3 rounded-top">
+                <h2>Modificar Usuario @Model.UsuarioAModificar.NombreDeUsuario</h2>
+            </section>
+
+            <form asp-controller="Usuarios" asp-action="ModificarUsuario" method="post" class="p-4 border rounded-bottom shadow-lg bg-white">
+                
+                <input type="hidden" asp-for="@Model.UsuarioAModificar.IdUsuario">
+                <input type="hidden" asp-for="@Model.UsuarioAModificar.NombreDeUsuario">
+                <input type="hidden" asp-for="@Model.UsuarioAModificar.Password">
+
+                <fieldset class="mb-3">
+                    <label asp-for="@Model.UsuarioAModificar.Email" class="form-label">Correo Electrónico</label>
+                    <input asp-for="@Model.UsuarioAModificar.Email" type="email" class="form-control" required>
+                </fieldset>
+
+                <fieldset class="mb-3">
+                    <label asp-for="@Model.UsuarioAModificar.Rol" class="form-label">Rol</label>
+                    <select asp-for="@Model.UsuarioAModificar.Rol" class="form-select">
+                        <option value="1">Administrador</option>
+                        <option value="2">Operador</option>
+                    </select>
+                </fieldset>
+
+                <section class="d-flex justify-content-between">
+                    <a asp-controller="Usuarios" asp-action="Index" class="btn btn-secondary w-45"><i class="bi bi-arrow-left-circle"></i> Cancelar</a>
+                    <button type="submit" class="btn btn-primary w-45"><i class="bi bi-floppy"></i> Guardar cambios</button>
+                </section>
+            </form>
+        </section>
+    </article>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

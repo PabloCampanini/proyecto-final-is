@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="container text-center d-flex flex-column justify-content-center align-items-center">
+    <h1 class="display-1 fw-bold text-dark animate_animated animated__fadeInDown">
+        <span class="">Kanban</span>
+    </h1>
+    <p class="lead">Organiza tus tareas de manera eficiente.</p>
+
+    @if (Context.Session.GetInt32(key: "idSesion") == null)
+    {
+        <a class="btn btn-primary btn-lg mt-3" asp-controller="Login" asp-action="Index">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+        </a>
+    }
+    else
+    {
+        <h3>Bienvenido @Context.Session.GetString("usuario")</h3>
+    }
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">

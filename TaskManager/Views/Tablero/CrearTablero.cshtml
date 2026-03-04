@@ -1,0 +1,39 @@
+@{
+    ViewData["title"] = "Nuevo Tablero";
+}
+
+@model CrearTableroVM
+
+<section class="container mt-4">
+    <article class="row justify-content-center">
+        <section class="col-md-6">
+            <header class="bg-primary text-white text-center py-3 rounded-top">
+                <h2>Crear Tablero</h2>
+            </header>
+
+            <form asp-controller="Tablero" asp-action="CrearTablero" method="post"
+                class="p-4 border rounded-bottom shadow-lg bg-white">
+                <input hidden asp-for="@Model.IdCreador">
+
+                <fieldset class="mb-3">
+                    <label asp-for="NombreTablero" class="form-label">Nombre del Tablero</label>
+                    <input asp-for="NombreTablero" type="text" class="form-control" required>
+                </fieldset>
+
+                <fieldset class="mb-3">
+                    <label asp-for="DescripcionTablero" class="form-label">Descripción</label>
+                    <textarea asp-for="DescripcionTablero" class="form-control" rows="3"></textarea>
+                </fieldset>
+
+                <footer class="text-center">
+                    <button type="submit" class="btn btn-primary w-100 my-1">Crear Tablero</button>
+                    <a asp-controller="Tablero" asp-action="Index" class="btn btn-secondary w-100 my-1"><i class="bi bi-arrow-left-circle"></i> Cancelar</a>
+                </footer>
+            </form>
+        </section>
+    </article>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
