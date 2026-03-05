@@ -7,5 +7,5 @@ public class LoginVM
     
     [Required(ErrorMessage = "Debe ingresar una contraseña.")]
     public string Password {get;set;}
-    public string ErrorMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 }
