@@ -134,7 +134,15 @@ gitGraph
    merge release/1.0.0 tag: "v1.0.0"
    checkout develop
    merge release/1.0.0
-```
+
+   checkout main
+   branch hotfix/correccion-error
+   checkout hotfix/correccion-error
+   commit id: "fix: bug fix"
+   checkout main
+   merge hotfix/correccion-error tag: "v1.0.1"
+   checkout develop
+   merge hotfix/correccion-error
 ---
 
 ## 🔄 Flujo de Trabajo Aplicado
@@ -165,6 +173,11 @@ MAJOR.MINOR.PATCH
 
 - Primera versión estable del sistema.
 - Generada mediante rama `release/1.0.0`, merge a `main` y creación de tag anotado.
+
+### 🔹 v1.0.1
+
+- Corrección de error detectado tras la liberación inicial.
+- Implementado mediante rama `hotfix/*`, merge a `main` y nuevo tag.
 
 El uso de tags permite identificar de forma precisa el estado del sistema en cada versión liberada.
 
