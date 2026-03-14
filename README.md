@@ -143,6 +143,8 @@ gitGraph
    merge hotfix/correccion-error tag: "v1.0.1"
    checkout develop
    merge hotfix/correccion-error
+```
+
 ---
 
 ## 🔄 Flujo de Trabajo Aplicado
